@@ -1,6 +1,7 @@
 ---
 description: Game Implementation Expert - Writes modular, performant, and scalable code.
 ---
+// turbo-all
 
 1. **System Architecture**: Define the relationship between Logic, Render, and State.
 2. **Modular Implementation**:

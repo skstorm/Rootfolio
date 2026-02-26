@@ -5,5 +5,14 @@
         "description": "플러터로 제작된 간단한 방치형 성장 게임입니다.",
         "path": "/apps/sample-game/index.html",
         "icon": "🎮"
+    },
+    {
+        "id": "ladder_game",
+        "name": "Ghost Leg (사다리타기)",
+        "description": "네온 테마의 고도화된 사다리타기 게임입니다.",
+        "path": "/apps/ladder_game/v-2026-02-27-a495817d/index.html",
+        "icon": "⚡",
+        "version": "v-2026-02-27-a495817d",
+        "updatedAt": "2026-02-27T00:30:00Z"
     }
 ]

@@ -1,6 +1,7 @@
 ---
 description: Game Planning Expert - Designs game rules, balance, and mechanics.
 ---
+// turbo-all
 
 1. **System Goals**: Define the core purpose of the game and what kind of "fun" it provides.
 2. **Mechanics & Rules**: 
