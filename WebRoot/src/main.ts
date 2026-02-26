@@ -102,12 +102,26 @@ router.add('/apps/view', async () => {
         <h2>${app.name}</h2>
       </div>
       <div class="iframe-container">
-        <div class="iframe-placeholder">플러터 앱 빌드 후 여기에 표시됩니다.</div>
-        <!-- <iframe src="${app.path}" frameborder="0"></iframe> -->
+        <iframe 
+          id="app-iframe"
+          src="${app.path}" 
+          frameborder="0" 
+          sandbox="allow-scripts allow-same-origin"
+          onload="window.initAppBridge()"
+        ></iframe>
       </div>
     </section>
   `;
 });
+
+// Bridge Initialization Logic
+(window as any).initAppBridge = () => {
+  const iframe = document.getElementById('app-iframe') as HTMLIFrameElement;
+  if (iframe && iframe.contentWindow) {
+    console.log('🔗 Initializing Bridge for:', iframe.src);
+    // Future: const bridge = new Bridge(iframe.contentWindow);
+  }
+};
 
 router.add('/logs', async () => {
   const listItems = contentIndex.logs.map(item => `

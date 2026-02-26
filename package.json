@@ -1,0 +1,9 @@
+{
+    "name": "rootfolio",
+    "private": true,
+    "workspaces": [
+        "packages/*",
+        "WebRoot",
+        "AppRoots/*"
+    ]
+}
