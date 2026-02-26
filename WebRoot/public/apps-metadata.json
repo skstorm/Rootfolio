@@ -10,9 +10,9 @@
         "id": "ladder_game",
         "name": "Ghost Leg (사다리타기)",
         "description": "네온 테마의 고도화된 사다리타기 게임입니다.",
-        "path": "/apps/ladder_game/v-2026-02-27-a495817d/index.html",
+        "path": "/apps/ladder_game/v-2026-02-27-ca4b27f5-fixed/index.html",
         "icon": "⚡",
-        "version": "v-2026-02-27-a495817d",
-        "updatedAt": "2026-02-27T00:30:00Z"
+        "version": "v-2026-02-27-ca4b27f5-fixed",
+        "updatedAt": "2026-02-27T00:42:00Z"
     }
 ]

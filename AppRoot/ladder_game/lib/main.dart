@@ -106,83 +106,121 @@ class _GameViewState extends State<GameView> with SingleTickerProviderStateMixin
     final map = provider.map;
 
     return Scaffold(
-      body: Stack(
-        children: [
-          // 1. 사다리 게임 캔버스 (InteractiveViewer를 통한 카메라 워킹)
-          Positioned.fill(
-            child: InteractiveViewer(
-              transformationController: _transformationController,
-              boundaryMargin: const EdgeInsets.all(100),
-              minScale: 0.5,
-              maxScale: 2.5,
-              child: map != null ? Center(
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  height: MediaQuery.of(context).size.height * 0.7,
-                  child: GestureDetector(
-                    onTapUp: (details) {
-                      if (provider.isAnimating) return;
-                      
-                      final double colWidth = (MediaQuery.of(context).size.width * 0.8) / (map.columnCount - 1 + 2);
-                      final double startX = colWidth;
-                      final int colIndex = ((details.localPosition.dx - startX + (colWidth / 2)) / colWidth).floor();
-                      
-                      if (colIndex >= 0 && colIndex < map.columnCount) {
-                        provider.startAnimation(colIndex);
-                        _controller.forward(from: 0.0);
-                      }
-                    },
-                    child: CustomPaint(
-                      size: Size.infinite,
-                      painter: LadderPainter(
-                        map: map,
-                        activePaths: [provider.currentPath],
-                        themeColor: Theme.of(context).primaryColor,
-                        currentPlayerPos: provider.currentPlayerPos,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
+          ),
+        ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // 1. 배경 장식 (텍스트 로고)
+            Positioned.fill(
+              child: Opacity(
+                opacity: 0.05,
+                child: Center(
+                  child: FittedBox(
+                    child: Text(
+                      'ELECTRIC\nROOTS',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.orbitron(
+                        fontSize: 200,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).primaryColor,
                       ),
                     ),
                   ),
                 ),
-              ) : const SizedBox.shrink(),
+              ),
             ),
-          ),
 
-          // 2. 고정 제목 (카메라 영향 안 받음)
-          if (!provider.isAnimating)
-            Positioned(
-              top: 40,
-              left: 0,
-              right: 0,
-              child: Center(
+            // 2. 사다리 게임 캔버스
+            if (map != null)
+              Positioned.fill(
+                child: InteractiveViewer(
+                  transformationController: _transformationController,
+                  boundaryMargin: const EdgeInsets.all(200),
+                  minScale: 0.1,
+                  maxScale: 3.0,
+                  child: Center(
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      height: MediaQuery.of(context).size.height * 0.8,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white10),
+                        color: Colors.black26,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: GestureDetector(
+                        onTapUp: (details) {
+                          if (provider.isAnimating) return;
+                          
+                          final double colWidth = (MediaQuery.of(context).size.width * 0.9) / (map.columnCount - 1 + 2);
+                          final double startX = colWidth;
+                          final int colIndex = ((details.localPosition.dx - startX + (colWidth / 2)) / colWidth).floor();
+                          
+                          if (colIndex >= 0 && colIndex < map.columnCount) {
+                            provider.startAnimation(colIndex);
+                            _controller.forward(from: 0.0);
+                          }
+                        },
+                        child: CustomPaint(
+                          size: Size.infinite,
+                          painter: LadderPainter(
+                            map: map,
+                            activePaths: [provider.currentPath],
+                            themeColor: Theme.of(context).primaryColor,
+                            currentPlayerPos: provider.currentPlayerPos,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+            // 3. 상단 헤더
+            if (!provider.isAnimating)
+              Positioned(
+                top: 30,
                 child: Text(
-                  'ELECTRIC ROOTS',
+                  'GHOST LEG',
                   style: GoogleFonts.orbitron(
-                    fontSize: 32,
-                    letterSpacing: 8,
+                    fontSize: 24,
+                    letterSpacing: 4,
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).primaryColor,
                   ),
                 ),
               ),
-            ),
 
-          // 3. UI 컨트롤
-          if (map == null)
-            const Center(child: SetupWidget())
-          else if (!provider.isAnimating)
-            Positioned(
-              bottom: 40,
-              right: 40,
-              child: FloatingActionButton(
-                onPressed: () {
-                  provider.clearMap();
-                  _transformationController.value = Matrix4.identity();
-                },
-                backgroundColor: Theme.of(context).primaryColor,
-                child: const Icon(Icons.refresh, color: Colors.black),
+            // 4. 설정 UI
+            if (map == null)
+              const Center(
+                child: SingleChildScrollView(
+                  child: SetupWidget(),
+                ),
               ),
-            ),
-        ],
+
+            // 5. 초기화 버튼
+            if (map != null && !provider.isAnimating)
+              Positioned(
+                bottom: 30,
+                right: 30,
+                child: FloatingActionButton(
+                  onPressed: () {
+                    provider.clearMap();
+                    _transformationController.value = Matrix4.identity();
+                  },
+                  backgroundColor: Theme.of(context).primaryColor,
+                  child: const Icon(Icons.refresh, color: Colors.black),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
