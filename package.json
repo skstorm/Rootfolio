@@ -4,6 +4,16 @@
     "workspaces": [
         "packages/*",
         "WebRoot",
-        "AppRoots/*"
-    ]
+        "AppRoot/*"
+    ],
+    "scripts": {
+        "deploy-app": "ts-node-esm scripts/deploy-app.ts"
+    },
+    "devDependencies": {
+        "@types/fs-extra": "^11.0.4",
+        "@types/node": "^20.11.20",
+        "fs-extra": "^11.2.0",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.3.3"
+    }
 }

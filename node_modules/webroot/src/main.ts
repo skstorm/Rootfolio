@@ -9,18 +9,46 @@ app.innerHTML = `
     <header class="header">
       <h1 class="logo" onclick="router.navigate('/')" style="cursor:pointer">Rootfolio<span>🌳</span></h1>
       <nav class="nav">
-        <a href="/" class="nav-link">Home</a>
-        <a href="/studies" class="nav-link">Studies</a>
-        <a href="/apps" class="nav-link">Apps</a>
-        <a href="/logs" class="nav-link">Logs</a>
+        <a href="/" class="nav-link" data-path="/">Home</a>
+        <a href="/studies" class="nav-link" data-path="/studies">Studies</a>
+        <a href="/apps" class="nav-link" data-path="/apps">Apps</a>
+        <a href="/logs" class="nav-link" data-path="/logs">Logs</a>
       </nav>
     </header>
     
-    <div id="app-content">
-      <!-- Content will be injected here -->
+    <div id="app-content-wrapper">
+      <div id="app-content">
+        <!-- Content will be injected here -->
+      </div>
     </div>
   </div>
 `;
+
+// Helper to update active link
+const updateActiveLink = (path: string) => {
+  document.querySelectorAll('.nav-link').forEach(link => {
+    link.classList.toggle('active', link.getAttribute('data-path') === path);
+  });
+};
+
+// Override router.navigate to handle transitions
+const originalNavigate = router.navigate;
+router.navigate = async (path: string) => {
+  const content = document.getElementById('app-content');
+  if (content) {
+    content.style.opacity = '0';
+    content.style.transform = 'translateY(10px)';
+    setTimeout(async () => {
+      await originalNavigate.call(router, path);
+      updateActiveLink(path);
+      content.style.opacity = '1';
+      content.style.transform = 'translateY(0)';
+    }, 200);
+  } else {
+    await originalNavigate.call(router, path);
+    updateActiveLink(path);
+  }
+};
 
 // Define View Handlers
 router.add('/', () => `
@@ -28,8 +56,12 @@ router.add('/', () => `
     <h2 class="hero-title animate-up">Roots for Growth,<br/>Portfolio for Achievement</h2>
     <p class="hero-desc animate-up delay-1">학습 여정, 개발 프로젝트, 개인적인 성찰을 위한 프리미엄 디지털 생태계</p>
     <div class="cta-group animate-up delay-2">
-      <button class="btn btn-primary" onclick="router.navigate('/studies')">탐색 시작하기</button>
-      <button class="btn btn-outline" onclick="router.navigate('/logs')">최근 로그 보기</button>
+      <button class="btn btn-primary" onclick="router.navigate('/studies')">
+        탐색 시작하기 <span>🚀</span>
+      </button>
+      <button class="btn btn-outline" onclick="router.navigate('/logs')">
+        최근 로그 보기
+      </button>
     </div>
   </main>
 `);
@@ -67,15 +99,16 @@ router.add('/studies/view', async () => {
 
 router.add('/apps', async () => {
   const response = await fetch('/apps-metadata.json');
-  const apps = await response.json();
+  const apps = await response.json().catch(() => []);
 
-  const listItems = apps.map((app: any) => `
+  const listItems = apps.length > 0 ? apps.map((app: any) => `
     <article class="content-card" onclick="router.navigate('/apps/view?id=${app.id}')">
-      <div class="card-icon">${app.icon}</div>
+      <div class="card-icon">${app.icon || '📦'}</div>
       <h3>${app.name}</h3>
       <p>${app.description}</p>
+      <div class="date">v${app.version || '0.1.0'}</div>
     </article>
-  `).join('');
+  `).join('') : '<p style="color: var(--text-dim)">등록된 앱이 없습니다.</p>';
 
   return `
     <section class="page-section animate-up">
@@ -90,7 +123,7 @@ router.add('/apps/view', async () => {
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
   const response = await fetch('/apps-metadata.json');
-  const apps = await response.json();
+  const apps = await response.json().catch(() => []);
   const app = apps.find((a: any) => a.id === id);
 
   if (!app) return '<p>앱을 찾을 수 없습니다.</p>';
@@ -119,7 +152,6 @@ router.add('/apps/view', async () => {
   const iframe = document.getElementById('app-iframe') as HTMLIFrameElement;
   if (iframe && iframe.contentWindow) {
     console.log('🔗 Initializing Bridge for:', iframe.src);
-    // Future: const bridge = new Bridge(iframe.contentWindow);
   }
 };
 
@@ -144,3 +176,4 @@ router.add('/logs', async () => {
 (window as any).router = router;
 
 router.init();
+updateActiveLink(window.location.pathname);

@@ -1,4 +1,4 @@
 packages:
   - 'packages/*'
   - 'WebRoot'
-  - 'AppRoots/*'
+  - 'AppRoot/*'
