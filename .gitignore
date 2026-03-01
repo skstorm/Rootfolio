@@ -21,8 +21,12 @@ build/
 # Web App Specific
 WebRoot/dist/
 
-# Deployment Artifacts (Optional: keep if you want versioned apps in git, else ignore)
-# WebRoot/public/apps/
+# Deployment Artifacts
+WebRoot/public/apps/
+
+# Tool Generated
+docs/.pdca-*
+docs/.bkit-*
 
 # IDEs and Editors
 .vscode/
