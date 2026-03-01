@@ -1,18 +1,19 @@
 [
-    {
-        "id": "sample-game",
-        "name": "성장하는 나무 (Sample Game)",
-        "description": "플러터로 제작된 간단한 방치형 성장 게임입니다.",
-        "path": "/apps/sample-game/index.html",
-        "icon": "🎮"
-    },
-    {
-        "id": "ladder_game",
-        "name": "Ghost Leg (사다리타기)",
-        "description": "네온 테마의 고도화된 사다리타기 게임입니다.",
-        "path": "/apps/ladder_game/v-2026-02-27-ca4b27f5-fixed/index.html",
-        "icon": "⚡",
-        "version": "v-2026-02-27-ca4b27f5-fixed",
-        "updatedAt": "2026-02-27T00:42:00Z"
-    }
+  {
+    "id": "sample-game",
+    "name": "성장하는 나무 (Sample Game)",
+    "description": "플러터로 제작된 간단한 방치형 성장 게임입니다.",
+    "path": "/apps/sample-game/index.html",
+    "icon": "🎮"
+  },
+  {
+    "id": "ladder_game",
+    "name": "Ladder_game",
+    "description": "네온 테마의 고도화된 사다리타기 게임입니다.",
+    "path": "/apps/ladder_game/v-2026-03-01-170b3019/index.html",
+    "icon": "⚡",
+    "version": "v-2026-03-01-170b3019",
+    "updatedAt": "2026-03-01T04:44:31.884Z",
+    "type": "flutter"
+  }
 ]

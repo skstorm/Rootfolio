@@ -7,7 +7,8 @@
         "AppRoot/*"
     ],
     "scripts": {
-        "deploy-app": "ts-node-esm scripts/deploy-app.ts"
+        "deploy-app": "ts-node-esm scripts/deploy-app.ts",
+        "dev:ladder": "cd AppRoot/ladder_game && puro flutter run -d chrome --profile"
     },
     "devDependencies": {
         "@types/fs-extra": "^11.0.4",

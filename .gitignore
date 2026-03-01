@@ -1,0 +1,40 @@
+# Node.js
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Flutter / Dart
+build/
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+/AppRoot/ladder_game/build/
+/AppRoot/ladder_game/.dart_tool/
+/AppRoot/ladder_game/.packages
+/AppRoot/ladder_game/.pub-cache/
+/AppRoot/ladder_game/.pub/
+
+# Web App Specific
+WebRoot/dist/
+
+# Deployment Artifacts (Optional: keep if you want versioned apps in git, else ignore)
+# WebRoot/public/apps/
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local Env
+.env
+.env.local

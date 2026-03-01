@@ -12,7 +12,7 @@ export interface AppConfig {
 
 export abstract class AppBuilder {
     abstract detect(appPath: string): boolean;
-    abstract build(appPath: string): void;
+    abstract build(appPath: string, baseHref?: string): void;
     abstract getArtifactsDir(appPath: string): string;
 }
 
@@ -20,8 +20,8 @@ export class FlutterBuilder extends AppBuilder {
     detect(appPath: string): boolean {
         return fs.existsSync(path.join(appPath, 'pubspec.yaml'));
     }
-    build(appPath: string): void {
-        execSync('flutter build web --release', { cwd: appPath, stdio: 'inherit' });
+    build(appPath: string, baseHref: string = '/'): void {
+        execSync(`flutter build web --release --base-href ${baseHref}`, { cwd: appPath, stdio: 'inherit' });
     }
     getArtifactsDir(appPath: string): string {
         return path.join(appPath, 'build', 'web');
@@ -31,10 +31,16 @@ export class FlutterBuilder extends AppBuilder {
 export class DeployEngine {
     private builders: AppBuilder[] = [new FlutterBuilder()];
 
+    private webPublicDir: string;
+    private metadataPath: string;
+
     constructor(
-        private webPublicDir: string,
-        private metadataPath: string
-    ) { }
+        webPublicDir: string,
+        metadataPath: string
+    ) {
+        this.webPublicDir = webPublicDir;
+        this.metadataPath = metadataPath;
+    }
 
     async deploy(appConfig: AppConfig) {
         const builder = this.builders.find(b => b.detect(appConfig.path));
@@ -42,13 +48,14 @@ export class DeployEngine {
 
         console.log(`🚀 Deploying ${appConfig.id} using ${builder.constructor.name}...`);
 
-        // BUILD
-        builder.build(appConfig.path);
-
         // HASH & VERSION
         const hash = crypto.randomBytes(4).toString('hex');
         const versionDir = `v-${new Date().toISOString().split('T')[0]}-${hash}`;
         const targetDir = path.join(this.webPublicDir, 'apps', appConfig.id, versionDir);
+        const baseHref = `/apps/${appConfig.id}/${versionDir}/`;
+
+        // BUILD
+        builder.build(appConfig.path, baseHref);
 
         // COPY
         await fs.ensureDir(targetDir);

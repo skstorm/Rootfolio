@@ -1,6 +1,9 @@
 import path from 'path';
 import fs from 'fs-extra';
-import { DeployEngine, AppConfig } from '../packages/deploy-engine';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+import { DeployEngine } from './../packages/deploy-engine/index.ts';
 
 const ROOT_DIR = path.resolve(__dirname, '..');
 const WEB_PUBLIC_DIR = path.join(ROOT_DIR, 'WebRoot', 'public');
@@ -23,7 +26,7 @@ async function main() {
     const engine = new DeployEngine(WEB_PUBLIC_DIR, METADATA_PATH);
 
     // Basic config - in a real scenario, this might come from a project-specific config file
-    const appConfig: AppConfig = {
+    const appConfig: any = {
         id: appId,
         name: appId.charAt(0).toUpperCase() + appId.slice(1).replace(/-/g, ' '),
         type: 'flutter', // Defaulting to flutter for now as it's the only builder

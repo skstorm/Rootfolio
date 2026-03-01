@@ -23,17 +23,20 @@ class LadderPainter extends CustomPainter {
     final basePaint = Paint()
       ..color = const Color(0xFF1E293B)
       ..strokeWidth = 4.0
+      ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
     final glowPaint = Paint()
       ..color = themeColor.withOpacity(0.3)
       ..strokeWidth = 8.0
+      ..style = PaintingStyle.stroke
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4.0)
       ..strokeCap = StrokeCap.round;
 
     final accentPaint = Paint()
       ..color = themeColor
       ..strokeWidth = 2.0
+      ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
     // 1. 기본 수직선
