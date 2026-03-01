@@ -64,7 +64,7 @@ class _GameViewState extends State<GameView> with SingleTickerProviderStateMixin
 
     _controller.addListener(() {
       context.read<GameProvider>().updateAnimation(_controller.value);
-      _updateCamera();
+      // _updateCamera(); // 카메라 움직임 제거
     });
   }
 
@@ -76,28 +76,8 @@ class _GameViewState extends State<GameView> with SingleTickerProviderStateMixin
   }
 
   void _updateCamera() {
-    final provider = context.read<GameProvider>();
-    if (provider.isAnimating && provider.currentPlayerPos != null) {
-      final pos = provider.currentPlayerPos!;
-      final Size size = MediaQuery.of(context).size;
-      final double colWidth = (size.width * 0.8) / (provider.map!.columnCount - 1 + 2);
-      final double startX = colWidth;
-      final double boardHeight = size.height * 0.7;
-
-      // 캐릭터 위치를 타겟으로 카메라 줌인 효과
-      double targetX = startX + (pos.dx * colWidth);
-      double targetY = pos.dy * boardHeight;
-
-      // 중앙 맞춤 및 줌 조정 (Matrix4)
-      final zoom = 1.5;
-      final matrix = Matrix4.identity()
-        ..scale(zoom)
-        ..translate(-targetX + (size.width / (2 * zoom)), -targetY + (size.height / (2 * zoom)));
-      
-      _transformationController.value = matrix;
-    } else {
-      _transformationController.value = Matrix4.identity();
-    }
+    // 카메라 움직임 기능을 비활성화했습니다. (어지러움 방지)
+    _transformationController.value = Matrix4.identity();
   }
 
   @override
