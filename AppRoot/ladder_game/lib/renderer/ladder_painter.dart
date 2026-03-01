@@ -5,13 +5,13 @@ class LadderPainter extends CustomPainter {
   final LadderMap map;
   final List<List<Offset>> activePaths;
   final Color themeColor;
-  final Offset? currentPlayerPos; // 현재 애니메이션 중인 플레이어 위치
+  final double? animationProgress;
 
   LadderPainter({
     required this.map,
     required this.activePaths,
     required this.themeColor,
-    this.currentPlayerPos,
+    this.animationProgress,
   });
 
   @override
@@ -60,44 +60,47 @@ class LadderPainter extends CustomPainter {
     }
 
     // 3. 현재 진행 중인 경로 실시간 렌더링
-    if (currentPlayerPos != null) {
+    if (animationProgress != null && activePaths.isNotEmpty) {
       final path = activePaths.first;
-      if (path.isNotEmpty) {
+      if (path.length >= 2) {
         final pathPainter = Path();
         pathPainter.moveTo(startX + (path[0].dx * colWidth), path[0].dy * height);
         
-        bool foundCurrent = false;
-        for (int i = 1; i < path.length; i++) {
-          // 캐릭터가 이미 지나온 경로는 전체를 그리고, 현재 위치까지만 그림
-          Offset p = Offset(startX + (path[i].dx * colWidth), path[i].dy * height);
-          
-          // 현재 위치가 이 세그먼트 사이에 있는지 대략적으로 체크 (또는 지나왔는지)
-          // 여기서는 단순하게 currentPos의 y값을 기준으로 그림
-          if (path[i].dy * height <= currentPlayerPos!.dy * height + 1.0) {
-             pathPainter.lineTo(p.dx, p.dy);
-          } else {
-             // 현재 위치까지만 긋기
-             pathPainter.lineTo(startX + (currentPlayerPos!.dx * colWidth), currentPlayerPos!.dy * height);
-             foundCurrent = true;
-             break;
-          }
+        final int totalSegments = path.length - 1;
+        final double currentSegmentProgress = animationProgress! * totalSegments;
+        final int fullSegments = currentSegmentProgress.floor();
+        final double localProgress = currentSegmentProgress - fullSegments;
+
+        // 1. 이미 지나간 전체 세그먼트 그리기
+        for (int i = 1; i <= fullSegments; i++) {
+          pathPainter.lineTo(startX + (path[i].dx * colWidth), path[i].dy * height);
         }
-        
-        if (!foundCurrent) {
-           pathPainter.lineTo(startX + (currentPlayerPos!.dx * colWidth), currentPlayerPos!.dy * height);
+
+        // 2. 현재 진행 중인 세그먼트 일부 그리기
+        if (fullSegments < totalSegments) {
+          final Offset p1 = path[fullSegments];
+          final Offset p2 = path[fullSegments + 1];
+          final Offset currentPos = Offset.lerp(p1, p2, localProgress)!;
+          pathPainter.lineTo(startX + (currentPos.dx * colWidth), currentPos.dy * height);
         }
 
         canvas.drawPath(pathPainter, glowPaint);
         canvas.drawPath(pathPainter, accentPaint);
 
-        // 캐릭터 (전동 뿌리 효과)
+        // 캐릭터 효과 (currentPlayerPos 대신 실시간 계산)
+        final Offset p1 = fullSegments < totalSegments ? path[fullSegments] : path.last;
+        final Offset p2 = fullSegments < totalSegments ? path[fullSegments + 1] : path.last;
+        final Offset curPos = Offset.lerp(p1, p2, fullSegments < totalSegments ? localProgress : 1.0)!;
+        final double drawX = startX + (curPos.dx * colWidth);
+        final double drawY = curPos.dy * height;
+
         canvas.drawCircle(
-          Offset(startX + (currentPlayerPos!.dx * colWidth), currentPlayerPos!.dy * height),
+          Offset(drawX, drawY),
           6.0,
           Paint()..color = themeColor..maskFilter = const MaskFilter.blur(BlurStyle.outer, 8.0)
         );
         canvas.drawCircle(
-          Offset(startX + (currentPlayerPos!.dx * colWidth), currentPlayerPos!.dy * height),
+          Offset(drawX, drawY),
           4.0,
           Paint()..color = Colors.white
         );

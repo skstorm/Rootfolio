@@ -153,7 +153,7 @@ class _GameViewState extends State<GameView> with SingleTickerProviderStateMixin
                             map: map,
                             activePaths: [provider.currentPath],
                             themeColor: Theme.of(context).primaryColor,
-                            currentPlayerPos: provider.currentPlayerPos,
+                            animationProgress: provider.animationProgress,
                           ),
                         ),
                       ),

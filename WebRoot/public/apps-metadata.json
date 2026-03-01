@@ -10,10 +10,10 @@
     "id": "ladder_game",
     "name": "Ladder_game",
     "description": "네온 테마의 고도화된 사다리타기 게임입니다.",
-    "path": "/apps/ladder_game/v-2026-03-01-efc58621/index.html",
+    "path": "/apps/ladder_game/v-2026-03-01-cf1abfa0/index.html",
     "icon": "⚡",
-    "version": "v-2026-03-01-efc58621",
-    "updatedAt": "2026-03-01T06:10:41.472Z",
+    "version": "v-2026-03-01-cf1abfa0",
+    "updatedAt": "2026-03-01T06:15:45.430Z",
     "type": "flutter"
   }
 ]
