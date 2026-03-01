@@ -8,13 +8,32 @@ app.innerHTML = `
   <div class="container">
     <header class="header">
       <h1 class="logo" onclick="router.navigate('/')" style="cursor:pointer">Rootfolio<span>🌳</span></h1>
-      <nav class="nav">
+      
+      <!-- Desktop Nav -->
+      <nav class="nav desktop-nav">
         <a href="/" class="nav-link" data-path="/">Home</a>
         <a href="/studies" class="nav-link" data-path="/studies">Studies</a>
         <a href="/apps" class="nav-link" data-path="/apps">Apps</a>
         <a href="/logs" class="nav-link" data-path="/logs">Logs</a>
       </nav>
+
+      <!-- Mobile Menu Toggle -->
+      <button class="mobile-menu-toggle" id="menu-toggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
     </header>
+
+    <!-- Mobile Navigation Overlay -->
+    <div class="mobile-nav-overlay" id="mobile-overlay">
+      <nav class="mobile-nav">
+        <a href="/" class="mobile-nav-link" data-path="/">Home</a>
+        <a href="/studies" class="mobile-nav-link" data-path="/studies">Studies</a>
+        <a href="/apps" class="mobile-nav-link" data-path="/apps">Apps</a>
+        <a href="/logs" class="mobile-nav-link" data-path="/logs">Logs</a>
+      </nav>
+    </div>
     
     <div id="app-content-wrapper">
       <div id="app-content">
@@ -23,6 +42,28 @@ app.innerHTML = `
     </div>
   </div>
 `;
+
+// Mobile menu toggle logic
+const menuToggle = document.getElementById('menu-toggle');
+const mobileOverlay = document.getElementById('mobile-overlay');
+
+const toggleMenu = () => {
+  menuToggle?.classList.toggle('active');
+  mobileOverlay?.classList.toggle('active');
+  document.body.classList.toggle('menu-open');
+};
+
+menuToggle?.addEventListener('click', toggleMenu);
+
+// Close menu when clicking a link
+document.querySelectorAll('.mobile-nav-link').forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    const path = (link as HTMLElement).getAttribute('href')!;
+    router.navigate(path);
+    toggleMenu();
+  });
+});
 
 // Helper to update active link
 const updateActiveLink = (path: string) => {

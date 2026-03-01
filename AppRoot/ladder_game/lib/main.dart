@@ -134,28 +134,67 @@ class _GameViewState extends State<GameView> with SingleTickerProviderStateMixin
                         color: Colors.black26,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: GestureDetector(
-                        onTapUp: (details) {
-                          if (provider.isAnimating) return;
-                          
-                          final double colWidth = (MediaQuery.of(context).size.width * 0.9) / (map.columnCount - 1 + 2);
-                          final double startX = colWidth;
-                          final int colIndex = ((details.localPosition.dx - startX + (colWidth / 2)) / colWidth).floor();
-                          
-                          if (colIndex >= 0 && colIndex < map.columnCount) {
-                            provider.startAnimation(colIndex);
-                            _controller.forward(from: 0.0);
-                          }
-                        },
-                        child: CustomPaint(
-                          size: Size.infinite,
-                          painter: LadderPainter(
-                            map: map,
-                            activePaths: [provider.currentPath],
-                            themeColor: Theme.of(context).primaryColor,
-                            animationProgress: provider.animationProgress,
+                      child: Stack(
+                        children: [
+                          // 2.1 사다리 본체 레이어
+                          Positioned.fill(
+                            child: CustomPaint(
+                              painter: LadderPainter(
+                                map: map,
+                                activePaths: [provider.currentPath],
+                                themeColor: Theme.of(context).primaryColor,
+                                animationProgress: provider.animationProgress,
+                              ),
+                            ),
                           ),
-                        ),
+                          // 2.2 상단 시작 버튼 레이어
+                          if (!provider.isAnimating)
+                            ...List.generate(map.columnCount, (index) {
+                              final double colWidth = (MediaQuery.of(context).size.width * 0.9) / (map.columnCount - 1 + 2);
+                              final double startX = colWidth;
+                              return Positioned(
+                                top: 0,
+                                left: startX + (index * colWidth) - 20,
+                                child: MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      provider.startAnimation(index);
+                                      _controller.forward(from: 0.0);
+                                    },
+                                    child: Container(
+                                      width: 40,
+                                      height: 60,
+                                      color: Colors.transparent,
+                                      child: Column(
+                                        children: [
+                                          Icon(
+                                            Icons.power,
+                                            color: Theme.of(context).primaryColor,
+                                            size: 24,
+                                          ),
+                                          Container(
+                                            width: 4,
+                                            height: 10,
+                                            decoration: BoxDecoration(
+                                              color: Theme.of(context).primaryColor,
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Theme.of(context).primaryColor.withOpacity(0.5),
+                                                  blurRadius: 4,
+                                                  spreadRadius: 1,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }),
+                        ],
                       ),
                     ),
                   ),
