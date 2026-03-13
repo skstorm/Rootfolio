@@ -1,0 +1,22 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "lib/generated_plugin_registrant.dart"
+
+linter:
+  rules:
+    - prefer_const_constructors
+    - prefer_const_declarations
+    - prefer_is_empty
+    - prefer_is_not_empty
+    - unnecessary_const
+    - unnecessary_new
+    - camel_case_types
+    - library_names
+    - avoid_print
+    - prefer_final_fields
+    - prefer_final_locals
+    - sort_child_properties_last

@@ -1,0 +1,98 @@
+# ============================
+# Miscellaneous
+# ============================
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# ============================
+# IDE
+# ============================
+*.iml
+*.ipr
+*.iws
+.idea/
+# .vscode/ 은 팀 공유 설정이 있을 수 있으므로 기본 주석 처리 유지
+#.vscode/
+
+# ============================
+# Flutter / Dart / Pub
+# ============================
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Generated files (build_runner / injectable)
+**/*.g.dart
+**/*.freezed.dart
+**/*.config.dart
+lib/generated_plugin_registrant.dart
+
+# ============================
+# Platform — Windows
+# ============================
+windows/flutter/generated_plugin_registrant.cc
+windows/flutter/generated_plugins.cmake
+windows/flutter/ephemeral/
+
+# ============================
+# Platform — macOS
+# ============================
+macos/Flutter/GeneratedPluginRegistrant.swift
+macos/Flutter/ephemeral/
+
+# ============================
+# Platform — Android
+# ============================
+/android/app/debug
+/android/app/profile
+/android/app/release
+/android/local.properties
+/android/.gradle/
+/android/key.properties         # 서명 키 설정 — 절대 커밋 금지
+
+# ============================
+# Platform — iOS
+# ============================
+/ios/Flutter/Debug.xcconfig
+/ios/Flutter/Release.xcconfig
+/ios/Pods/
+/ios/.symlinks/
+
+# ============================
+# Symbols / Obfuscation
+# ============================
+app.*.symbols
+app.*.map.json
+
+# ============================
+# 환경 변수 / API 키 — 절대 커밋 금지
+# ============================
+.env
+.env.*
+secrets.dart
+**/secrets/
+google-services.json
+GoogleService-Info.plist
+**/assets/api_keys/
+
+# ============================
+# 임시 파일
+# ============================
+analyze_errors.txt
+/tmp/

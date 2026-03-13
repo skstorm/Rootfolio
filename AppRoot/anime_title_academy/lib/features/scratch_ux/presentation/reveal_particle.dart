@@ -1,0 +1,58 @@
+import 'package:flutter/material.dart';
+import 'package:confetti/confetti.dart';
+
+class RevealParticle extends StatefulWidget {
+  final Widget child; // 메인 콘텐츠 
+  final bool isTriggered; // 폭발 발동 여부
+
+  const RevealParticle({
+    super.key,
+    required this.child,
+    required this.isTriggered,
+  });
+
+  @override
+  State<RevealParticle> createState() => _RevealParticleState();
+}
+
+class _RevealParticleState extends State<RevealParticle> {
+  late ConfettiController _confettiController;
+
+  @override
+  void initState() {
+    super.initState();
+    _confettiController = ConfettiController(duration: const Duration(seconds: 1));
+  }
+
+  @override
+  void didUpdateWidget(RevealParticle oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isTriggered && !oldWidget.isTriggered) {
+      _confettiController.play();
+    }
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        widget.child,
+        ConfettiWidget(
+          confettiController: _confettiController,
+          blastDirectionality: BlastDirectionality.explosive, // 사방으로 퍼짐
+          shouldLoop: false,
+          colors: const [
+            Colors.yellow, Colors.blue, Colors.pink, Colors.orange, Colors.purple
+          ],
+        ),
+      ],
+    );
+  }
+}
