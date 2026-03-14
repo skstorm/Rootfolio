@@ -14,12 +14,13 @@ class ScratchPainter extends CustomPainter {
     if (points.isEmpty) return;
 
     final paint = Paint()
-      ..color = Colors.transparent
+      ..color = Colors.black
       ..blendMode = BlendMode.clear
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round
-      ..style = PaintingStyle.stroke;
+      ..style = PaintingStyle.stroke
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12); // 다시 마스크 필터 적용
 
     for (int i = 0; i < points.length - 1; i++) {
       if (points[i] != null && points[i + 1] != null) {

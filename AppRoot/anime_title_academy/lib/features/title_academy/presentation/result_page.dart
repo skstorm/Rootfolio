@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../scratch_ux/presentation/scratch_wrapper_view.dart';
 import '../../scratch_ux/presentation/scratch_provider.dart';
+import '../../../core/theme/scratch_styles.dart';
 import 'title_provider.dart';
 
 class ResultPage extends ConsumerStatefulWidget {
@@ -69,71 +71,57 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                   : titleState is TitleError
                       ? Center(child: Text('오류 발생: ${(titleState as TitleError).message}'))
                       : titleState is TitleSuccess
-                          ? ScratchWrapperView(
-                              clearThreshold: 0.4,
-                              foreground: Container(
-                                color: Colors.grey[850],
-                                child: Stack(
-                                  fit: StackFit.expand,
-                                  children: [
-                                    if (imageFile != null)
-                                      ColorFiltered(
-                                        colorFilter: const ColorFilter.matrix([
-                                          0.2126, 0.7152, 0.0722, 0, 0,
-                                          0.2126, 0.7152, 0.0722, 0, 0,
-                                          0.2126, 0.7152, 0.0722, 0, 0,
-                                          0,      0,      0,      1, 0,
-                                        ]),
-                                        child: Image.file(imageFile, fit: BoxFit.cover),
-                                      ),
-                                    const Center(
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(Icons.touch_app, color: Colors.white70, size: 48),
-                                          SizedBox(height: 8),
-                                          Text(
-                                            '여기를 문질러\n결과를 확인하세요!',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: Colors.white70,
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                          ? Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                // 배경 이미지 (상시 컬러)
+                                if (imageFile != null)
+                                  Image.file(imageFile, fit: BoxFit.cover),
+                                
+                                // 자막 영역 (스크래치 적용)
+                                Positioned(
+                                  bottom: 40,
+                                  left: 20,
+                                  right: 20,
+                                  height: 85,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: ScratchWrapperView(
+                                      clearThreshold: 0.3,
+                                      foreground: Container(
+                                        decoration: ScratchStyles.silverMaskDecoration(0),
+                                        child: const Center(
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Icon(Icons.swipe, color: Colors.white70, size: 20),
+                                              SizedBox(width: 8),
+                                              Text('여기를 긁어 자막 확인', style: ScratchStyles.guideTextStyle),
+                                            ],
                                           ),
-                                        ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              background: Stack(
-                                fit: StackFit.expand,
-                                children: [
-                                  if (imageFile != null)
-                                    Image.file(imageFile, fit: BoxFit.cover),
-                                  Positioned(
-                                    bottom: 24,
-                                    left: 16,
-                                    right: 16,
-                                    child: Text(
-                                      (titleState as TitleSuccess).result.text,
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.yellow,
-                                        shadows: [
-                                          Shadow(offset: Offset(2, 2), blurRadius: 4, color: Colors.black),
-                                          Shadow(offset: Offset(-2, -2), blurRadius: 4, color: Colors.black),
-                                          Shadow(offset: Offset(2, -2), blurRadius: 4, color: Colors.black),
-                                          Shadow(offset: Offset(-2, 2), blurRadius: 4, color: Colors.black),
-                                        ],
+                                      background: Container(
+                                        alignment: Alignment.center,
+                                        color: Colors.black.withOpacity(0.6),
+                                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                                        child: Text(
+                                          (titleState as TitleSuccess).result.text,
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.yellow,
+                                            shadows: [
+                                              Shadow(offset: Offset(2, 2), blurRadius: 4, color: Colors.black),
+                                            ],
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             )
                           : const Center(child: Text('준비 중...')),
             ),
@@ -161,6 +149,16 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                       }
                     : null,
               ),
+              const SizedBox(width: 12),
+              // 디버그용 리셋 버튼 (개발 환경에서만 노출)
+              if (kDebugMode)
+                TextButton.icon(
+                  icon: const Icon(Icons.refresh, color: Colors.redAccent),
+                  label: const Text('리셋 (Debug)', style: TextStyle(color: Colors.redAccent)),
+                  onPressed: () {
+                    ref.read(scratchProvider.notifier).reset();
+                  },
+                ),
             ],
           ),
           const SizedBox(height: 32),

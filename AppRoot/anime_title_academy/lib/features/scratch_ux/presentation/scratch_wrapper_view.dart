@@ -29,8 +29,9 @@ class ScratchWrapperView extends ConsumerWidget {
           background,
           
           // 앞쪽: 가림막 + 스크래치 효과
-          if (!scratchState.isCleared)
-            ScratchCanvas(
+          IgnorePointer(
+            ignoring: scratchState.isCleared,
+            child: ScratchCanvas(
               strokeWidth: 50.0,
               clearThreshold: clearThreshold,
               onCleared: () {
@@ -38,6 +39,7 @@ class ScratchWrapperView extends ConsumerWidget {
               },
               child: foreground,
             ),
+          ),
         ],
       ),
     );
