@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/theme/scratch_styles.dart';
 import 'reveal_particle.dart';
 import 'scratch_canvas.dart';
 import 'scratch_provider.dart';
 
 class ScratchWrapperView extends ConsumerWidget {
-  final Widget foreground; // 원본 이미지 (가림막)
-  final Widget background; // 결과 이미지 (보여질 내용)
+  final Widget foreground;
+  final Widget background;
   final double clearThreshold;
+  final double? strokeWidth;
+  final double? erasureIntensity;
 
   const ScratchWrapperView({
     super.key,
     required this.foreground,
     required this.background,
     this.clearThreshold = 0.4,
+    this.strokeWidth,
+    this.erasureIntensity,
   });
 
   @override
@@ -22,25 +27,20 @@ class ScratchWrapperView extends ConsumerWidget {
 
     return RevealParticle(
       isTriggered: scratchState.isCleared,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          // 뒤쪽: 결과 화면
-          background,
-          
-          // 앞쪽: 가림막 + 스크래치 효과
-          IgnorePointer(
-            ignoring: scratchState.isCleared,
-            child: ScratchCanvas(
-              strokeWidth: 50.0,
-              clearThreshold: clearThreshold,
-              onCleared: () {
-                ref.read(scratchProvider.notifier).setCleared();
-              },
-              child: foreground,
-            ),
-          ),
-        ],
+      child: IgnorePointer(
+        ignoring: scratchState.isCleared,
+        child: ScratchCanvas(
+          strokeWidth: strokeWidth ?? ScratchStyles.defaultStrokeWidth,
+          erasureIntensity: erasureIntensity ?? ScratchStyles.defaultErasureIntensity,
+          clearThreshold: clearThreshold,
+          decoration: ScratchStyles.silverMaskDecoration(0),
+          guideText: '여기를 긁어 자막 확인',
+          guideTextStyle: ScratchStyles.guideTextStyle,
+          onCleared: () {
+            ref.read(scratchProvider.notifier).setCleared();
+          },
+          child: background,
+        ),
       ),
     );
   }

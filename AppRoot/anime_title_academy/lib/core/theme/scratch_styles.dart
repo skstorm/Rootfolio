@@ -39,4 +39,9 @@ class ScratchStyles {
       Shadow(offset: Offset(1, 1), blurRadius: 2, color: Colors.black45),
     ],
   );
+
+  /// 점진적 스크래치 설정 (스타일 토큰)
+  static const double defaultErasureIntensity = 0.15; // 1회 터치 시 투명도 감소량
+  static const double defaultStrokeWidth = 50.0;     // 브러쉬 크기 기본값
+  static const double softBlurSigma = 12.0;         // 브러쉬 경계 블러 강도
 }

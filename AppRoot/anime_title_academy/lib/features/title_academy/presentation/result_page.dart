@@ -25,13 +25,12 @@ class _ResultPageState extends ConsumerState<ResultPage> {
   @override
   void initState() {
     super.initState();
-    // 화면 진입 시 AI 파이프라인 실행
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.imagePath != null) {
         ref.read(titleNotifierProvider.notifier).runFullPipeline(
           File(widget.imagePath!),
           widget.style,
-          widget.style, // presetPrompt로 스타일 이름을 그대로 전달
+          widget.style,
         );
       }
     });
@@ -56,10 +55,10 @@ class _ResultPageState extends ConsumerState<ResultPage> {
               ),
               clipBehavior: Clip.hardEdge,
               child: titleState is TitleLoading
-                  ? const Center(
+                  ? Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
-                        children: [
+                        children: const [
                           CircularProgressIndicator(color: Colors.yellow),
                           SizedBox(height: 20),
                           Text('AI가 사진을 분석하여\n자막을 생성하고 있습니다...',
@@ -74,11 +73,9 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                           ? Stack(
                               fit: StackFit.expand,
                               children: [
-                                // 배경 이미지 (상시 컬러)
                                 if (imageFile != null)
                                   Image.file(imageFile, fit: BoxFit.cover),
                                 
-                                // 자막 영역 (스크래치 적용)
                                 Positioned(
                                   bottom: 40,
                                   left: 20,
@@ -88,19 +85,7 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                                     borderRadius: BorderRadius.circular(12),
                                     child: ScratchWrapperView(
                                       clearThreshold: 0.3,
-                                      foreground: Container(
-                                        decoration: ScratchStyles.silverMaskDecoration(0),
-                                        child: const Center(
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              Icon(Icons.swipe, color: Colors.white70, size: 20),
-                                              SizedBox(width: 8),
-                                              Text('여기를 긁어 자막 확인', style: ScratchStyles.guideTextStyle),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
+                                      foreground: Container(), // Dummy
                                       background: Container(
                                         alignment: Alignment.center,
                                         color: Colors.black.withOpacity(0.6),
@@ -123,7 +108,7 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                                 ),
                               ],
                             )
-                          : const Center(child: Text('준비 중...')),
+                          : Center(child: const Text('준비 중...')),
             ),
           ),
           const SizedBox(height: 16),
@@ -150,7 +135,6 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                     : null,
               ),
               const SizedBox(width: 12),
-              // 디버그용 리셋 버튼 (개발 환경에서만 노출)
               if (kDebugMode)
                 TextButton.icon(
                   icon: const Icon(Icons.refresh, color: Colors.redAccent),
