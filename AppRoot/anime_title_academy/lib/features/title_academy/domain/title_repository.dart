@@ -13,4 +13,11 @@ abstract class TitleRepository {
     required String presetType,
     required String presetPrompt,
   });
+
+  /// [속도 최적화] 이미지와 프리셋을 한 번에 보내어 자막 생성
+  Future<Result<TitleResult>> generateTitleOneShot({
+    required File image,
+    required String presetType,
+    required String presetPrompt,
+  });
 }

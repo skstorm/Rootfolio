@@ -5,13 +5,15 @@ import 'core/routes/app_router.dart';
 import 'core/constants/app_constants.dart';
 import 'di/injection_container.dart';
 import 'di/di_constants.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // 추후 Firebase 초기화 등 비동기 작업 위치
+  // 환경변수 로드
+  await dotenv.load(fileName: ".env");
   
-  configureDependencies(DIConstants.dev); // 일단 dev(Mock) 환경으로 초기화
+  configureDependencies(DIConstants.prod); // AI 연동을 위해 prod 환경으로 변경
   
   runApp(
     const ProviderScope(

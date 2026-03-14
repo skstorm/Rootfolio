@@ -40,27 +40,24 @@ class TitleNotifier extends Notifier<TitleState> {
   Future<void> runFullPipeline(File image, String presetType, String prompt) async {
     state = TitleLoading();
 
-    // 1. Vision Analysis
-    final analysisResult = await _analyzeUseCase(image);
-    if (analysisResult is Failure) {
-      state = TitleError((analysisResult as Failure).failure.message);
-      return;
+    try {
+      final repo = getIt<TitleRepository>();
+      final result = await repo.generateTitleOneShot(
+        image: image,
+        presetType: presetType,
+        presetPrompt: prompt,
+      );
+
+      if (result is Failure) {
+        state = TitleError((result as Failure).failure.message);
+        return;
+      }
+
+      state = TitleSuccess((result as Success<TitleResult>).data);
+    } catch (e, stack) {
+      print('❌ AI 파이프라인 오류: $e');
+      print(stack);
+      state = TitleError('AI 처리 중 예기치 못한 오류가 발생했습니다: $e');
     }
-
-    final tags = (analysisResult as Success<ImageAnalysis>).data.tags;
-
-    // 2. Text Generation
-    final titleResult = await _generateUseCase(
-      tags: tags,
-      presetType: presetType,
-      presetPrompt: prompt,
-    );
-
-    if (titleResult is Failure) {
-      state = TitleError((titleResult as Failure).failure.message);
-      return;
-    }
-
-    state = TitleSuccess((titleResult as Success<TitleResult>).data);
   }
 }

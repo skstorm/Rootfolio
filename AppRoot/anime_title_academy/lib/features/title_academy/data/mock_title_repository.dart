@@ -5,7 +5,7 @@ import '../domain/title_repository.dart';
 import '../domain/title_result.dart';
 import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: TitleRepository, env: ['dev'])
+// @LazySingleton(as: TitleRepository, env: ['dev'])
 class MockTitleRepository implements TitleRepository {
   @override
   Future<Result<ImageAnalysis>> analyzeVariables(File image) async {
@@ -22,6 +22,20 @@ class MockTitleRepository implements TitleRepository {
     await Future.delayed(const Duration(milliseconds: 800));
     return Success(TitleResult(
       text: '[$presetType] Mock 생성된 자막입니다!',
+      presetType: presetType,
+      timestamp: DateTime.now(),
+    ));
+  }
+
+  @override
+  Future<Result<TitleResult>> generateTitleOneShot({
+    required File image,
+    required String presetType,
+    required String presetPrompt,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 1000));
+    return Success(TitleResult(
+      text: '[$presetType] One-shot Mock 자막입니다!',
       presetType: presetType,
       timestamp: DateTime.now(),
     ));
