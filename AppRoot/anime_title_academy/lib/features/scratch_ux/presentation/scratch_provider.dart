@@ -28,7 +28,10 @@ class ScratchNotifier extends Notifier<ScratchState> {
   }
 
   void reset() {
-    state = const ScratchState();
+    // 리셋 시 percent를 잠시 -1.0으로 두어 Canvas가 확실히 변화를 감지하게 함
+    state = const ScratchState(isCleared: false, percent: -1.0);
+    // 바로 정상 초기값으로 복구
+    Future.microtask(() => state = const ScratchState());
   }
 }
 

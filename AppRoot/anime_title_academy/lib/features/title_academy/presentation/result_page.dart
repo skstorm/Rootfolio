@@ -84,7 +84,13 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(12),
                                     child: ScratchWrapperView(
-                                      clearThreshold: 0.3,
+                                      clearThreshold: 0.2,
+                                      targetText: (titleState as TitleSuccess).result.text,
+                                      targetTextStyle: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.yellow,
+                                      ),
                                       foreground: Container(), // Dummy
                                       background: Container(
                                         alignment: Alignment.center,

@@ -21,3 +21,7 @@ This document contains persistent instructions for the Rootfolio project. These 
 ## 🛠️ Development Style
 - Use modern, clean, and modular coding patterns.
 - Ensure all automated tasks follow the project's aesthetic guidelines (Dark Mode, Premium UI).
+
+## ⚠️ Agent Operational Guidelines
+- **No Unauthorized Execution**: The AI agent MUST NOT execute any code, install packages, or modify core configuration files without the USER's explicit approval during the PLANNING phase.
+- **Strict Planning First**: Every major task MUST begin with a detailed `implementation_plan.md` and `task.md`. The agent must wait for the USER's "LGTM" or explicit confirmation before moving from PLANNING to EXECUTION mode.

@@ -11,6 +11,8 @@ class ScratchWrapperView extends ConsumerWidget {
   final double clearThreshold;
   final double? strokeWidth;
   final double? erasureIntensity;
+  final String? targetText;
+  final TextStyle? targetTextStyle;
 
   const ScratchWrapperView({
     super.key,
@@ -19,6 +21,8 @@ class ScratchWrapperView extends ConsumerWidget {
     this.clearThreshold = 0.4,
     this.strokeWidth,
     this.erasureIntensity,
+    this.targetText,
+    this.targetTextStyle,
   });
 
   @override
@@ -33,6 +37,8 @@ class ScratchWrapperView extends ConsumerWidget {
           strokeWidth: strokeWidth ?? ScratchStyles.defaultStrokeWidth,
           erasureIntensity: erasureIntensity ?? ScratchStyles.defaultErasureIntensity,
           clearThreshold: clearThreshold,
+          targetText: targetText,
+          targetTextStyle: targetTextStyle,
           decoration: ScratchStyles.silverMaskDecoration(0),
           guideText: '여기를 긁어 자막 확인',
           guideTextStyle: ScratchStyles.guideTextStyle,
