@@ -200,6 +200,7 @@ class _ScratchCanvasState extends ConsumerState<ScratchCanvas> {
           child: RepaintBoundary(
             key: _key,
             child: Stack(
+              clipBehavior: Clip.none,
               fit: StackFit.expand,
               children: [
                 widget.child,
@@ -223,7 +224,7 @@ class _ScratchCanvasState extends ConsumerState<ScratchCanvas> {
                     IgnorePointer(
                       child: CustomPaint(
                         size: parentSize,
-                        painter: _DebugGridPainter(hitGrids: _hitGrids),
+                        painter: _DebugHitIndicatorPainter(hitGrids: _hitGrids),
                       ),
                     ),
                   
@@ -246,28 +247,25 @@ class _ScratchCanvasState extends ConsumerState<ScratchCanvas> {
   }
 }
 
-class _DebugGridPainter extends CustomPainter {
+class _DebugHitIndicatorPainter extends CustomPainter {
   final Set<String> hitGrids;
-  _DebugGridPainter({required this.hitGrids});
+  _DebugHitIndicatorPainter({required this.hitGrids});
 
   @override
   void paint(Canvas canvas, Size size) {
-    // [SAFETY] 크기가 유효하지 않으면 그리지 않음 (무한대 오류 방지)
     if (size.isEmpty || !size.width.isFinite || !size.height.isFinite) return;
 
-    // 1. 투명도 지원 레이어 생성 (필수)
-    canvas.saveLayer(Offset.zero & size, Paint());
     final paint = Paint()..color = Colors.greenAccent.withOpacity(0.5);
     for (final gridKey in hitGrids) {
       final parts = gridKey.split(',');
       if (parts.length == 2) {
-        final x = double.parse(parts[0]) * 10 + 5.0;
-        final y = double.parse(parts[1]) * 10 + 5.0;
+        final x = (double.tryParse(parts[0]) ?? 0) * 10 + 5.0;
+        final y = (double.tryParse(parts[1]) ?? 0) * 10 + 5.0;
         canvas.drawCircle(Offset(x, y), 1.5, paint);
       }
     }
   }
 
   @override
-  bool shouldRepaint(covariant _DebugGridPainter oldDelegate) => true;
+  bool shouldRepaint(covariant _DebugHitIndicatorPainter oldDelegate) => true;
 }

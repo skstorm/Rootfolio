@@ -30,6 +30,7 @@ class ScratchWrapperView extends ConsumerWidget {
     final scratchState = ref.watch(scratchProvider);
 
     return RevealParticle(
+      clipBehavior: Clip.none,
       isTriggered: scratchState.isCleared,
       child: IgnorePointer(
         ignoring: scratchState.isCleared,

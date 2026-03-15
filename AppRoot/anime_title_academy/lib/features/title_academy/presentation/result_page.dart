@@ -1,10 +1,11 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../scratch_ux/presentation/scratch_wrapper_view.dart';
-import '../../scratch_ux/presentation/scratch_provider.dart';
-import '../../../core/theme/scratch_styles.dart';
+import 'package:anime_title_academy/features/scratch_ux/presentation/scratch_wrapper_view.dart';
+import 'package:anime_title_academy/features/scratch_ux/presentation/scratch_provider.dart';
+import 'package:anime_title_academy/core/util/debug_service.dart';
+import 'package:anime_title_academy/core/theme/scratch_styles.dart';
 import 'title_provider.dart';
 
 class ResultPage extends ConsumerStatefulWidget {
@@ -83,6 +84,9 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                                   height: 85,
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(12),
+                                    clipBehavior: ref.watch(debugServiceProvider).isDebugMode 
+                                        ? Clip.none 
+                                        : Clip.antiAlias,
                                     child: ScratchWrapperView(
                                       clearThreshold: 0.2,
                                       targetText: (titleState as TitleSuccess).result.text,
