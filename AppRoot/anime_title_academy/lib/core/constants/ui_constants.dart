@@ -40,6 +40,28 @@ class UiConstants {
   static const double scratchSoftBlurSigma = 12.0;
 
 
+  // --- [홈 화면 레이아웃 설정] ---
+
+  /// 홈 화면 상단 헤더 영역의 높이 비율 (전체 높이 대비)
+  static const double homeHeaderHeightRatio = 0.15;
+
+  /// 홈 화면 메인 비주얼(아이콘)의 최대 높이 비율
+  static const double homeMainVisualHeightRatio = 0.25;
+
+  /// 홈 화면 스타일 카드 섹션의 높이 비율
+  static const double homeStyleSectionHeightRatio = 0.2;
+
+  /// 홈 화면 기본 수평 패딩 (수직 배치 시 좌우 여백 확보)
+  static const double homeHorizontalPadding = 32.0;
+
+  /// 하단 액션 버튼의 여백 (SafeArea 상단 기준)
+  static const double homeBottomActionPadding = 32.0;
+
+  /// 스타일 카드 사이의 수직 간격
+  static const double homeStyleCardVerticalSpacing = 16.0;
+
+
+
   // --- [텍스트 생성 제약 조건] ---
 
   /// AI가 생성할 수 있는 제목의 최대 글자 수입니다. (공백 포함)
