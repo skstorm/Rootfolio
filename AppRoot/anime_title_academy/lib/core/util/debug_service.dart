@@ -25,8 +25,12 @@ abstract class DebugService {
 
 /// 개발 모드용 디버그 서비스 구현체
 class DevelopmentDebugService implements DebugService {
+  final bool isEnabled;
+
+  DevelopmentDebugService({this.isEnabled = true});
+
   @override
-  bool get isDebugMode => true;
+  bool get isDebugMode => isEnabled;
 
   @override
   void log(String message) {
@@ -139,11 +143,27 @@ class ReleaseDebugService implements DebugService {
   bool shouldShowHitGrids() => false;
 }
 
+/// 디버그 활성화 상태를 관리하는 노티파이어
+class DebugEnabledNotifier extends Notifier<bool> {
+  @override
+  bool build() => kDebugMode;
+
+  void toggle() => state = !state;
+}
+
+/// 디버그 활성화 상태 프로바이더 (기본값: kDebugMode)
+final debugEnabledProvider = NotifierProvider<DebugEnabledNotifier, bool>(() {
+  return DebugEnabledNotifier();
+});
+
 /// 디버그 서비스 프로바이더
 final debugServiceProvider = Provider<DebugService>((ref) {
+  final isEnabled = ref.watch(debugEnabledProvider);
+  
   if (kDebugMode) {
-    return DevelopmentDebugService();
+    return DevelopmentDebugService(isEnabled: isEnabled);
   } else {
+    // 릴리스 모드에서는 항상 No-op 서비스 제공
     return ReleaseDebugService();
   }
 });

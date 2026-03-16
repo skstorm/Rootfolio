@@ -45,7 +45,23 @@ class _ResultPageState extends ConsumerState<ResultPage> {
     final imageFile = widget.imagePath != null ? File(widget.imagePath!) : null;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('결과 확인')),
+      appBar: AppBar(
+        title: const Text('결과 확인'),
+        actions: [
+          IconButton(
+            icon: Icon(
+              ref.watch(debugEnabledProvider) 
+                  ? Icons.bug_report 
+                  : Icons.bug_report_outlined,
+              color: ref.watch(debugEnabledProvider) ? Colors.redAccent : Colors.white70,
+            ),
+            onPressed: () {
+              ref.read(debugEnabledProvider.notifier).toggle();
+            },
+            tooltip: '디버그 UI 토글',
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Expanded(

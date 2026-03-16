@@ -100,15 +100,17 @@ class ScratchPainter extends CustomPainter {
         // 텍스트 영역 Rect 콜백 호출 (Canvas에게 실제 판정 범위를 알림)
         onTextRectCalculated?.call(textRect);
 
-        // [DEBUG] 실제 판정 대상 영역 가시화 (DebugService 위임)
-        debugService.drawDebugRect(
-          canvas,
-          textRect,
-          Paint()
-            ..color = Colors.red.withOpacity(0.8)
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 2.0,
-        );
+        // [DEBUG] 실제 판정 대상 영역 가시화 (DebugService 위임 및 상태 확인)
+        if (debugService.isDebugMode) {
+          debugService.drawDebugRect(
+            canvas,
+            textRect,
+            Paint()
+              ..color = Colors.red.withOpacity(0.8)
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = 2.0,
+          );
+        }
       }
     } finally {
       canvas.restore();
