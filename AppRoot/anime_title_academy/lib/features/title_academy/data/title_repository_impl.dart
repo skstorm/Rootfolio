@@ -6,6 +6,7 @@ import '../domain/title_repository.dart';
 import '../domain/title_result.dart';
 import 'gemini_llm_datasource.dart';
 import 'gemini_vision_datasource.dart';
+import '../../../core/constants/ui_constants.dart';
 import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: TitleRepository)
@@ -61,7 +62,7 @@ class TitleRepositoryImpl implements TitleRepository {
         styleInstruction = "이미지의 분위기에 어울리는 창의적인 한국어 제목 1개를 출력해.";
       }
 
-      final fullPrompt = "이 이미지를 분석하고, $styleInstruction 친절한 인사말이나 부연 설명 없이 제목 텍스트만 출력해.";
+      final fullPrompt = "이 이미지를 분석하고, $styleInstruction 친절한 인사말이나 부연 설명 없이 제목 텍스트만 출력해. [제약] 제목은 반드시 공백 포함 ${UiConstants.maxTitleLength}자 이내로 작성할 것. 너무 긴 제목은 절대 금지.";
 
       final responseText = await _visionDatasource.aiClient.analyzeImageAndGenerateText(image, fullPrompt);
       

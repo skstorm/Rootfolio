@@ -6,6 +6,7 @@ import 'package:anime_title_academy/features/scratch_ux/presentation/scratch_wra
 import 'package:anime_title_academy/features/scratch_ux/presentation/scratch_provider.dart';
 import 'package:anime_title_academy/core/util/debug_service.dart';
 import 'package:anime_title_academy/core/theme/scratch_styles.dart';
+import 'package:anime_title_academy/core/constants/ui_constants.dart';
 import 'title_provider.dart';
 
 class ResultPage extends ConsumerStatefulWidget {
@@ -81,35 +82,37 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                                   bottom: 40,
                                   left: 20,
                                   right: 20,
-                                  height: 85,
+                                  height: UiConstants.scratchAreaHeight,
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(12),
                                     clipBehavior: ref.watch(debugServiceProvider).isDebugMode 
                                         ? Clip.none 
                                         : Clip.antiAlias,
                                     child: ScratchWrapperView(
-                                      clearThreshold: 0.2,
+                                      clearThreshold: UiConstants.scratchTotalClearThreshold,
                                       targetText: (titleState as TitleSuccess).result.text,
                                       targetTextStyle: const TextStyle(
-                                        fontSize: 20,
+                                        fontSize: UiConstants.scratchTitleFontSize,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.yellow,
+                                        color: UiConstants.scratchTitleColor,
                                       ),
                                       foreground: Container(), // Dummy
                                       background: Container(
                                         alignment: Alignment.center,
                                         color: Colors.black.withOpacity(0.6),
                                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                                        child: Text(
-                                          (titleState as TitleSuccess).result.text,
-                                          textAlign: TextAlign.center,
-                                          style: const TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.yellow,
-                                            shadows: [
-                                              Shadow(offset: Offset(2, 2), blurRadius: 4, color: Colors.black),
-                                            ],
+                                        child: Center(
+                                          child: Text(
+                                            (titleState as TitleSuccess).result.text,
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                              fontSize: UiConstants.scratchTitleFontSize,
+                                              fontWeight: FontWeight.bold,
+                                              color: UiConstants.scratchTitleColor,
+                                              shadows: [
+                                                Shadow(offset: Offset(2, 2), blurRadius: 4, color: Colors.black),
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ),

@@ -52,6 +52,7 @@ dependencies:
   confetti: ^0.8.0
   google_generative_ai: ^0.4.7
   flutter_dotenv: ^6.0.0
+  window_manager: ^0.4.3
 
 dev_dependencies:
   flutter_test:

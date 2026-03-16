@@ -44,8 +44,8 @@ class DevelopmentDebugService implements DebugService {
     String? targetText,
   }) {
     return Positioned(
-      // [REFIX] 확실한 노출을 위해 top 마이너스 값 사용 (Stack clipBehavior: Clip.none 필요)
-      top: -50, 
+      // [REFIX] 스크래치 영역과 겹치지 않도록 더 위로 올림
+      top: -90, 
       right: 0,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
