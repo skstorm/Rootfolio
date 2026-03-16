@@ -46,7 +46,10 @@ class UiConstants {
   static const int maxTitleLength = 25; // 기존 18에서 25로 상향
 
 
-  // --- [레이아웃 보정 수치] ---
+  // --- [디버그 설정] ---
+
+  /// 긁힌 영역을 연두색 점으로 표시할지 여부입니다.
+  static const bool showDebugHitGrids = false; // 사용자의 요청으로 일단 Off
 
   /// 디버그 오버레이가 스크래치 영역 위로 표시될 때의 수직 오프셋 값입니다.
   static const double debugOverlayTopOffset = -100.0;

@@ -58,7 +58,7 @@ class _ScratchCanvasState extends ConsumerState<ScratchCanvas> {
   }
 
   void _addPoint(PointerEvent event) {
-    if (_isCleared) return;
+    // [MOD] _isCleared 상태여도 포인트를 계속 추가할 수 있게 하여 완료 후에도 긁기 허용
     final RenderBox? renderBox = _key.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox != null) {
       final localPosition = renderBox.globalToLocal(event.position);

@@ -33,22 +33,19 @@ class ScratchWrapperView extends ConsumerWidget {
     return RevealParticle(
       clipBehavior: Clip.none,
       isTriggered: scratchState.isCleared,
-      child: IgnorePointer(
-        ignoring: scratchState.isCleared,
-        child: ScratchCanvas(
-          strokeWidth: strokeWidth ?? UiConstants.scratchStrokeWidth,
-          erasureIntensity: erasureIntensity ?? UiConstants.scratchErasureIntensity,
-          clearThreshold: clearThreshold,
-          targetText: targetText,
-          targetTextStyle: targetTextStyle,
-          decoration: ScratchStyles.silverMaskDecoration(0),
-          guideText: '여기를 긁어 자막 확인',
-          guideTextStyle: ScratchStyles.guideTextStyle,
-          onCleared: () {
-            ref.read(scratchProvider.notifier).setCleared();
-          },
-          child: background,
-        ),
+      child: ScratchCanvas(
+        strokeWidth: strokeWidth ?? UiConstants.scratchStrokeWidth,
+        erasureIntensity: erasureIntensity ?? UiConstants.scratchErasureIntensity,
+        clearThreshold: clearThreshold,
+        targetText: targetText,
+        targetTextStyle: targetTextStyle,
+        decoration: ScratchStyles.silverMaskDecoration(0),
+        guideText: '여기를 긁어 자막 확인',
+        guideTextStyle: ScratchStyles.guideTextStyle,
+        onCleared: () {
+          ref.read(scratchProvider.notifier).setCleared();
+        },
+        child: background,
       ),
     );
   }

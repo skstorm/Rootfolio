@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../constants/ui_constants.dart';
 
 /// 디버그 서비스 인터페이스
 abstract class DebugService {
@@ -110,7 +111,7 @@ class DevelopmentDebugService implements DebugService {
   }
 
   @override
-  bool shouldShowHitGrids() => true;
+  bool shouldShowHitGrids() => UiConstants.showDebugHitGrids;
 }
 
 /// 릴리스 모드용 No-op 디버그 서비스 구현체
