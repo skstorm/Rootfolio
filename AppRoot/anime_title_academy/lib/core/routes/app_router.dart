@@ -6,6 +6,8 @@ import '../../features/onboarding/presentation/welcome_page.dart';
 import '../../features/title_academy/presentation/home_page.dart';
 import '../../features/title_academy/presentation/result_page.dart';
 
+import '../../features/title_academy/presentation/prompt_sandbox_page.dart';
+
 // 임시 플레이스홀더 화면 (각 모듈 작업 시 실제 화면으로 대체)
 class PlaceholderScreen extends StatelessWidget {
   final String title;
@@ -44,6 +46,15 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: RouteNames.onboarding,
       builder: (context, state) => const WelcomePage(),
+    ),
+    GoRoute(
+      path: RouteNames.promptSandbox,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>? ?? {};
+        return PromptSandboxPage(
+          imagePath: extra['imagePath'] as String?,
+        );
+      },
     ),
   ],
 );

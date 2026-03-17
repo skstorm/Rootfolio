@@ -5,6 +5,7 @@ import '../core/network/gemini_api_key_client.dart';
 import '../features/title_academy/data/gemini_vision_datasource.dart';
 import '../features/title_academy/data/gemini_llm_datasource.dart';
 import '../features/title_academy/data/title_repository_impl.dart';
+import '../features/title_academy/data/prompt_template_service.dart';
 import '../features/title_academy/domain/title_repository.dart';
 import '../features/gallery/data/gallery_repository_impl.dart';
 import '../features/gallery/domain/gallery_repository.dart';
@@ -37,11 +38,15 @@ void manualSetup(GetIt getIt, String env) {
     getIt.registerFactory(() => GeminiLlmDatasource(getIt<AiClient>()));
   }
 
-  // 3. Repositories & Services
+  if (!getIt.isRegistered<PromptTemplateService>()) {
+    getIt.registerLazySingleton<PromptTemplateService>(() => PromptTemplateService());
+  }
+
   if (!getIt.isRegistered<TitleRepository>()) {
     getIt.registerLazySingleton<TitleRepository>(() => TitleRepositoryImpl(
       getIt<GeminiVisionDatasource>(),
       getIt<GeminiLlmDatasource>(),
+      getIt<PromptTemplateService>(),
     ));
   }
   

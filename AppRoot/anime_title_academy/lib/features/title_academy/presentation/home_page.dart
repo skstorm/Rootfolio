@@ -15,13 +15,13 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  String _selectedStyle = 'anime';
+  String _selectedStyle = 'youth';
   final ImagePicker _picker = ImagePicker();
 
   static const _styles = [
-    {'name': 'anime', 'label': '애니메이션', 'emoji': '🎌'},
-    {'name': 'pixel_art', 'label': '픽셀아트', 'emoji': '👾'},
-    {'name': 'watercolor', 'label': '수채화', 'emoji': '🎨'},
+    {'name': 'youth', 'label': '청춘 로맨스', 'emoji': '🌸'},
+    {'name': 'isekai', 'label': '이세계 판타지', 'emoji': '🎮'},
+    {'name': 'battle', 'label': '열혈 배틀물', 'emoji': '🔥'},
   ];
 
   Future<void> _pickImage(ImageSource source) async {

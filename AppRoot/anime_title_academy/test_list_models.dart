@@ -2,7 +2,7 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 import 'dart:io';
 
 void main() async {
-  final apiKey = 'AIzaSyCuFKKK0MWe-IiLoQqSkN57lKmENMCgX6M';
+  final apiKey = 'REMOVED_FOR_SECURITY';
   print('--- Gemini SDK Model List ---');
   
   // 사실 모델 리스트 조회는 GenerativeModel 인스턴스 없이도 가능하나

@@ -31,10 +31,11 @@ class TitleNotifier extends Notifier<TitleState> {
 
   @override
   TitleState build() {
-    final repo = getIt<TitleRepository>();
-    _analyzeUseCase = AnalyzeImageUseCase(repo);
-    _generateUseCase = GenerateTitleUseCase(repo);
     return TitleInitial();
+  }
+
+  void reset() {
+    state = TitleInitial();
   }
 
   Future<void> runFullPipeline(File image, String presetType, String prompt) async {

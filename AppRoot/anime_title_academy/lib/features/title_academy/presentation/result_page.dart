@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../core/routes/route_names.dart';
 import 'package:anime_title_academy/features/scratch_ux/presentation/scratch_wrapper_view.dart';
 import 'package:anime_title_academy/features/scratch_ux/presentation/scratch_provider.dart';
 import 'package:anime_title_academy/core/util/debug_service.dart';
@@ -29,6 +31,9 @@ class _ResultPageState extends ConsumerState<ResultPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.imagePath != null) {
+        // 이전 상태 초기화 후 새로운 파이프라인 시작
+        ref.read(titleNotifierProvider.notifier).reset();
+        
         ref.read(titleNotifierProvider.notifier).runFullPipeline(
           File(widget.imagePath!),
           widget.style,
@@ -60,6 +65,16 @@ class _ResultPageState extends ConsumerState<ResultPage> {
             },
             tooltip: '디버그 UI 토글',
           ),
+          if (ref.watch(debugEnabledProvider))
+            IconButton(
+              icon: const Icon(Icons.science_outlined, color: Colors.orangeAccent),
+              onPressed: () {
+                context.push(RouteNames.promptSandbox, extra: {
+                  'imagePath': widget.imagePath,
+                });
+              },
+              tooltip: '프롬프트 샌드박스',
+            ),
         ],
       ),
       body: Column(

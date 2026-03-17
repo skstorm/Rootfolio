@@ -3,7 +3,8 @@ import 'dart:io';
 
 void main() async {
   // API 키 직접 기입 (디버그용)
-  final apiKey = 'AIzaSyCuFKKK0MWe-IiLoQqSkN57lKmENMCgX6M';
+  // API 키 직접 기입 대신 환경변수나 .env를 사용해야 합니다.
+  final apiKey = 'REMOVED_FOR_SECURITY';
   
   print('--- Gemini Model Diagnostics ---');
   
