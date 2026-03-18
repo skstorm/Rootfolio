@@ -9,13 +9,11 @@ class GenerateTitleUseCase {
 
   Future<Result<TitleResult>> call({
     required List<String> tags,
-    required String presetType,
-    required String presetPrompt,
+    required String styleId,
   }) async {
     return await _repository.generateTitle(
       tags: tags,
-      presetType: presetType,
-      presetPrompt: presetPrompt,
+      styleId: styleId,
     );
   }
 }

@@ -9,6 +9,6 @@ class AnalyzeImageUseCase {
   AnalyzeImageUseCase(this._repository);
 
   Future<Result<ImageAnalysis>> call(File image) async {
-    return await _repository.analyzeVariables(image);
+    return await _repository.analyzeImage(image);
   }
 }

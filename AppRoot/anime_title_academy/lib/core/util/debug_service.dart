@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../di/injection_container.dart';
 import '../constants/ui_constants.dart';
+import '../logging/app_logger.dart';
 
 /// 디버그 서비스 인터페이스
 abstract class DebugService {
@@ -26,17 +28,19 @@ abstract class DebugService {
 /// 개발 모드용 디버그 서비스 구현체
 class DevelopmentDebugService implements DebugService {
   final bool isEnabled;
+  final AppLogger _logger;
 
-  DevelopmentDebugService({this.isEnabled = true});
+  DevelopmentDebugService({
+    required AppLogger logger,
+    this.isEnabled = true,
+  }) : _logger = logger;
 
   @override
   bool get isDebugMode => isEnabled;
 
   @override
   void log(String message) {
-    if (kDebugMode) {
-      print('[DEBUG] $message');
-    }
+    _logger.debug(message, name: 'DebugService');
   }
 
   @override
@@ -159,9 +163,10 @@ final debugEnabledProvider = NotifierProvider<DebugEnabledNotifier, bool>(() {
 /// 디버그 서비스 프로바이더
 final debugServiceProvider = Provider<DebugService>((ref) {
   final isEnabled = ref.watch(debugEnabledProvider);
+  final logger = getIt<AppLogger>();
   
   if (kDebugMode) {
-    return DevelopmentDebugService(isEnabled: isEnabled);
+    return DevelopmentDebugService(logger: logger, isEnabled: isEnabled);
   } else {
     // 릴리스 모드에서는 항상 No-op 서비스 제공
     return ReleaseDebugService();

@@ -33,19 +33,17 @@ class _HomePageState extends ConsumerState<HomePage> {
         imageQuality: 90,
       );
       if (picked == null) return;
+      if (!mounted) return;
 
-      if (context.mounted) {
-        context.push(RouteNames.result, extra: {
-          'imagePath': picked.path,
-          'style': _selectedStyle,
-        });
-      }
+      context.push(RouteNames.result, extra: {
+        'imagePath': picked.path,
+        'style': _selectedStyle,
+      });
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('이미지 선택 오류: $e')),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('이미지 선택 오류: $e')),
+      );
     }
   }
 

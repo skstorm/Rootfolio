@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'core/config/app_config.dart';
 import 'core/theme/app_theme.dart';
 import 'core/routes/app_router.dart';
 import 'core/constants/app_constants.dart';
 import 'core/constants/ui_constants.dart';
 import 'di/injection_container.dart';
 import 'di/di_constants.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,7 +18,7 @@ void main() async {
   // PC 해상도 고정 (Windows 전용)
   if (!kIsWeb && Platform.isWindows) {
     await windowManager.ensureInitialized();
-    WindowOptions windowOptions = const WindowOptions(
+    const windowOptions = WindowOptions(
       size: Size(UiConstants.pcWindowWidth, UiConstants.pcWindowHeight),
       minimumSize: Size(UiConstants.pcWindowWidth, UiConstants.pcWindowHeight),
       maximumSize: Size(UiConstants.pcWindowWidth, UiConstants.pcWindowHeight),
@@ -36,7 +37,8 @@ void main() async {
   // 환경변수 로드
   await dotenv.load(fileName: ".env");
   
-  configureDependencies(DIConstants.prod); // AI 연동을 위해 prod 환경으로 변경
+  await configureDependencies(DIConstants.prod);
+  getIt<AppConfig>().validate();
   
   runApp(
     const ProviderScope(

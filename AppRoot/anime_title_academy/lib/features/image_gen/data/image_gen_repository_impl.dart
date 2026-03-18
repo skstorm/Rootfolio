@@ -49,7 +49,7 @@ class ImageGenRepositoryImpl implements ImageGenRepository {
 
       final resultFile = await _datasource.base64ToFile(sdResponse.base64Image);
       return Success(TransformedImage(file: resultFile, style: stylePrompt));
-    } on Exception catch (e) {
+    } on Exception {
       // API 실패 시 원본 이미지로 폴백
       return Success(TransformedImage(file: source, style: stylePrompt, isOriginal: true));
     }
