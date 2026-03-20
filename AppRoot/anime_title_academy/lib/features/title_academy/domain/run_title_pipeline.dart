@@ -15,8 +15,9 @@ class RunTitlePipelineUseCase {
   Future<Result<TitleResult>> call({
     required File image,
     required String styleId,
+    bool useCache = true,
   }) async {
-    final analysis = await _analyzeImage(image);
+    final analysis = await _analyzeImage(image, useCache: useCache);
     if (analysis is Failure<ImageAnalysis>) {
       return Failure(analysis.failure);
     }

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:injectable/injectable.dart';
 import '../../../core/constants/ui_constants.dart';
 import '../domain/prompt_template.dart';
@@ -67,14 +69,33 @@ ${template.toFullPrompt(commonConstraints)}
   }
 
   /// 추출된 태그와 스타일 지침을 결합하여 LLM용 프롬프트를 생성합니다 (Two-step용).
-  String generateLlmPrompt(String styleId, List<String> tags) {
+  String generateLlmPrompt(
+    String styleId,
+    List<String> tags, {
+    List<String> recentTitles = const [],
+  }) {
     final template = _templates[styleId] ?? _templates['youth']!;
+    final focusTags = _pickFocusTags(tags);
     final tagsString = tags.join(', ');
+    final focusTagsString = focusTags.join(', ');
+    final recentTitlesText = recentTitles.isEmpty
+        ? ''
+        : """
+
+[직전 생성 제목]
+${recentTitles.map((title) => '- $title').join('\n')}
+
+[다양성 규칙]
+- 위 제목들과 같은 핵심 단어, 문장 구조, 감정 톤을 최대한 반복하지 말 것.
+- 직전 제목들과 겹치지 않는 새로운 표현으로 작성할 것.
+""";
     
     return """
 이미지에서 다음과 같은 요소들이 분석되었습니다: [$tagsString]
+이번 생성에서 우선적으로 반영할 핵심 태그는 [$focusTagsString] 입니다.
 
 이 요소들을 바탕으로 아래의 [지침]을 엄격히 준수하여 최적의 애니메이션 자막(제목)을 하나만 생성해줘.
+$recentTitlesText
 
 ${template.toFullPrompt(commonConstraints)}
 """.trim();
@@ -82,4 +103,21 @@ ${template.toFullPrompt(commonConstraints)}
 
   /// 사용 가능한 스타일 ID 목록을 반환합니다.
   List<String> get availableStyleIds => _templates.keys.toList();
+
+  List<String> _pickFocusTags(List<String> tags) {
+    final normalized = tags
+        .map((tag) => tag.trim())
+        .where((tag) => tag.isNotEmpty)
+        .toSet()
+        .toList();
+
+    if (normalized.isEmpty) {
+      return const ['감정', '장면'];
+    }
+
+    final random = Random();
+    normalized.shuffle(random);
+    final focusCount = normalized.length == 1 ? 1 : random.nextInt(2) + 1;
+    return normalized.take(focusCount).toList();
+  }
 }

@@ -25,6 +25,24 @@ class ResultPage extends ConsumerStatefulWidget {
 }
 
 class _ResultPageState extends ConsumerState<ResultPage> {
+  Future<void> _reanalyzeWithoutCache() async {
+    if (widget.imagePath == null) return;
+    final recentTitles =
+        ref.read(titleNotifierProvider).asData?.value?.recentTitles ?? const <String>[];
+    ref.read(scratchProvider.notifier).reset();
+    await ref.read(titleNotifierProvider.notifier).runFullPipeline(
+      File(widget.imagePath!),
+      widget.style,
+      useCache: false,
+      recentTitles: recentTitles,
+    );
+  }
+
+  Future<void> _regenerateTitleOnly() async {
+    ref.read(scratchProvider.notifier).reset();
+    await ref.read(titleNotifierProvider.notifier).regenerateTitleOnly();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -45,7 +63,8 @@ class _ResultPageState extends ConsumerState<ResultPage> {
     final titleState = ref.watch(titleNotifierProvider);
     final isCleared = ref.watch(scratchProvider).isCleared;
     final imageFile = widget.imagePath != null ? File(widget.imagePath!) : null;
-    final titleResult = titleState.asData?.value;
+    final titleViewState = titleState.asData?.value;
+    final titleResult = titleViewState?.result;
 
     return Scaffold(
       appBar: AppBar(
@@ -156,13 +175,40 @@ class _ResultPageState extends ConsumerState<ResultPage> {
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               OutlinedButton(
-                onPressed: () {
-                  ref.read(scratchProvider.notifier).reset();
-                  Navigator.of(context).pop();
-                },
+                onPressed: widget.imagePath != null && !titleState.isLoading
+                    ? _reanalyzeWithoutCache
+                    : null,
                 child: const Text('다시하기'),
+              ),
+              const SizedBox(width: 12),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (kDebugMode)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: TextButton.icon(
+                        icon: const Icon(Icons.refresh, color: Colors.redAccent),
+                        label: const Text(
+                          '리셋 (Debug)',
+                          style: TextStyle(color: Colors.redAccent),
+                        ),
+                        onPressed: () {
+                          ref.read(scratchProvider.notifier).reset();
+                        },
+                      ),
+                    ),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.auto_awesome),
+                    label: const Text('자막만 다시 생성'),
+                    onPressed: titleViewState != null && !titleState.isLoading
+                        ? _regenerateTitleOnly
+                        : null,
+                  ),
+                ],
               ),
               const SizedBox(width: 12),
               ElevatedButton.icon(
@@ -176,15 +222,6 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                       }
                     : null,
               ),
-              const SizedBox(width: 12),
-              if (kDebugMode)
-                TextButton.icon(
-                  icon: const Icon(Icons.refresh, color: Colors.redAccent),
-                  label: const Text('리셋 (Debug)', style: TextStyle(color: Colors.redAccent)),
-                  onPressed: () {
-                    ref.read(scratchProvider.notifier).reset();
-                  },
-                ),
             ],
           ),
           const SizedBox(height: 32),

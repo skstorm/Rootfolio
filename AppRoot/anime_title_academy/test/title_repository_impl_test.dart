@@ -26,7 +26,10 @@ class _FakeVisionDatasource extends GeminiVisionDatasource {
   final Future<VisionResponseModel> Function(File image) _handler;
 
   @override
-  Future<VisionResponseModel> analyzeImage(File image) => _handler(image);
+  Future<VisionResponseModel> analyzeImage(
+    File image, {
+    bool useCache = true,
+  }) => _handler(image);
 }
 
 class _FakeLlmDatasource extends GeminiLlmDatasource {

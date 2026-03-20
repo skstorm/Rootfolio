@@ -21,15 +21,20 @@ class GeminiVisionDatasource {
     AppLogger logger,
   );
 
-  Future<VisionResponseModel> analyzeImage(File image) async {
+  Future<VisionResponseModel> analyzeImage(
+    File image, {
+    bool useCache = true,
+  }) async {
     const prompt = '이 이미지의 핵심 객체, 배경, 분위기, 행동 양상을 5~10개의 쉼표로 구분된 키워드로만 추출해줘. 친절한 서술이나 인사말 없이 키워드만 줘.';
     
     try {
       final cacheKey = await _payloadPreparer.buildCacheKey(image);
-      final cached = _cache.get(cacheKey);
-      if (cached != null) {
-        DebugService.cacheHit('vision_analysis', scope: 'GeminiVisionDatasource');
-        return cached;
+      if (useCache) {
+        final cached = _cache.get(cacheKey);
+        if (cached != null) {
+          DebugService.cacheHit('vision_analysis', scope: 'GeminiVisionDatasource');
+          return cached;
+        }
       }
 
       final prepareStopwatch = DebugService.startTimer(
@@ -65,7 +70,9 @@ class GeminiVisionDatasource {
       final result = VisionResponseModel(
         extractedTags: tags.isEmpty ? ['분석 실패'] : tags,
       );
-      _cache.put(cacheKey, result);
+      if (useCache) {
+        _cache.put(cacheKey, result);
+      }
       return result;
     } catch (e) {
       throw Exception('비전 API 분석 중 오류 발생: $e');

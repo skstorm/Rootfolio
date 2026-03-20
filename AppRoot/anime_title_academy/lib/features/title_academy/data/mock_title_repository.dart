@@ -7,7 +7,10 @@ import '../domain/title_result.dart';
 // @LazySingleton(as: TitleRepository, env: ['dev'])
 class MockTitleRepository implements TitleRepository {
   @override
-  Future<Result<ImageAnalysis>> analyzeImage(File image) async {
+  Future<Result<ImageAnalysis>> analyzeImage(
+    File image, {
+    bool useCache = true,
+  }) async {
     await Future.delayed(const Duration(milliseconds: 500));
     return const Success(ImageAnalysis(tags: ['mock', 'test', 'funny']));
   }
@@ -16,6 +19,7 @@ class MockTitleRepository implements TitleRepository {
   Future<Result<TitleResult>> generateTitle({
     required List<String> tags,
     required String styleId,
+    List<String> recentTitles = const [],
   }) async {
     await Future.delayed(const Duration(milliseconds: 800));
     return Success(TitleResult(
@@ -29,6 +33,7 @@ class MockTitleRepository implements TitleRepository {
   Future<Result<TitleResult>> generateTitleFromImage({
     required File image,
     required String styleId,
+    bool useCache = true,
   }) async {
     await Future.delayed(const Duration(milliseconds: 1000));
     return Success(TitleResult(

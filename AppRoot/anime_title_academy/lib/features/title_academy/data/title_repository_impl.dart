@@ -26,9 +26,15 @@ class TitleRepositoryImpl implements TitleRepository {
   );
 
   @override
-  Future<Result<ImageAnalysis>> analyzeImage(File image) async {
+  Future<Result<ImageAnalysis>> analyzeImage(
+    File image, {
+    bool useCache = true,
+  }) async {
     try {
-      final response = await _visionDatasource.analyzeImage(image);
+      final response = await _visionDatasource.analyzeImage(
+        image,
+        useCache: useCache,
+      );
       return Success(ImageAnalysis(tags: response.extractedTags, confidence: 0.9));
     } catch (e) {
       return const Failure(ServerFailure('비전 분석에 실패했습니다.'));
@@ -39,9 +45,14 @@ class TitleRepositoryImpl implements TitleRepository {
   Future<Result<TitleResult>> generateTitle({
     required List<String> tags,
     required String styleId,
+    List<String> recentTitles = const [],
   }) async {
     try {
-      final fullPrompt = _promptService.generateLlmPrompt(styleId, tags);
+      final fullPrompt = _promptService.generateLlmPrompt(
+        styleId,
+        tags,
+        recentTitles: recentTitles,
+      );
       final stopwatch = DebugService.startTimer(
         'llm_generation',
         scope: 'TitleRepository',
@@ -69,6 +80,7 @@ class TitleRepositoryImpl implements TitleRepository {
   Future<Result<TitleResult>> generateTitleFromImage({
     required File image,
     required String styleId,
+    bool useCache = true,
   }) async {
     final totalStopwatch = DebugService.startTimer(
       'title_pipeline_total',
@@ -80,7 +92,7 @@ class TitleRepositoryImpl implements TitleRepository {
         'vision_analysis',
         scope: 'TitleRepository',
       );
-      final analysis = await analyzeImage(image);
+      final analysis = await analyzeImage(image, useCache: useCache);
       DebugService.endTimer(
         'vision_analysis',
         visionStopwatch,
@@ -102,6 +114,7 @@ class TitleRepositoryImpl implements TitleRepository {
       final result = await generateTitle(
         tags: tags,
         styleId: styleId,
+        recentTitles: const [],
       );
       DebugService.endTimer(
         'title_pipeline_total',

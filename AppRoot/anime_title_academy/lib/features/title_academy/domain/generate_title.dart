@@ -10,10 +10,12 @@ class GenerateTitleUseCase {
   Future<Result<TitleResult>> call({
     required List<String> tags,
     required String styleId,
+    List<String> recentTitles = const [],
   }) async {
     return await _repository.generateTitle(
       tags: tags,
       styleId: styleId,
+      recentTitles: recentTitles,
     );
   }
 }

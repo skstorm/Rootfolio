@@ -13,6 +13,7 @@ abstract class DebugService {
 
   static void debugLog(String message, {String scope = 'DebugService'}) {
     if (!kDebugMode) return;
+    print('[$scope] $message');
     developer.log(message, name: scope, level: 500);
   }
 
