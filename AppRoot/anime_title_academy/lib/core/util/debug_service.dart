@@ -1,11 +1,49 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../di/injection_container.dart';
 import '../constants/ui_constants.dart';
+import '../logging/app_logger.dart';
 
 /// 디버그 서비스 인터페이스
 abstract class DebugService {
   bool get isDebugMode;
+
+  static void debugLog(String message, {String scope = 'DebugService'}) {
+    if (!kDebugMode) return;
+    print('[$scope] $message');
+    developer.log(message, name: scope, level: 500);
+  }
+
+  static Stopwatch startTimer(String label, {String scope = 'DebugService'}) {
+    final stopwatch = Stopwatch()..start();
+    debugLog('$label started', scope: scope);
+    return stopwatch;
+  }
+
+  static void endTimer(
+    String label,
+    Stopwatch stopwatch, {
+    String scope = 'DebugService',
+    String? details,
+  }) {
+    if (!kDebugMode) return;
+    if (stopwatch.isRunning) {
+      stopwatch.stop();
+    }
+
+    final suffix = details == null || details.isEmpty ? '' : ' | $details';
+    debugLog(
+      '$label completed in ${stopwatch.elapsedMilliseconds}ms$suffix',
+      scope: scope,
+    );
+  }
+
+  static void cacheHit(String label, {String scope = 'DebugService'}) {
+    debugLog('$label cache hit', scope: scope);
+  }
   
   void log(String message);
   
@@ -27,16 +65,17 @@ abstract class DebugService {
 class DevelopmentDebugService implements DebugService {
   final bool isEnabled;
 
-  DevelopmentDebugService({this.isEnabled = true});
+  DevelopmentDebugService({
+    required AppLogger logger,
+    this.isEnabled = true,
+  });
 
   @override
   bool get isDebugMode => isEnabled;
 
   @override
   void log(String message) {
-    if (kDebugMode) {
-      print('[DEBUG] $message');
-    }
+    DebugService.debugLog(message);
   }
 
   @override
@@ -159,9 +198,10 @@ final debugEnabledProvider = NotifierProvider<DebugEnabledNotifier, bool>(() {
 /// 디버그 서비스 프로바이더
 final debugServiceProvider = Provider<DebugService>((ref) {
   final isEnabled = ref.watch(debugEnabledProvider);
+  final logger = getIt<AppLogger>();
   
   if (kDebugMode) {
-    return DevelopmentDebugService(isEnabled: isEnabled);
+    return DevelopmentDebugService(logger: logger, isEnabled: isEnabled);
   } else {
     // 릴리스 모드에서는 항상 No-op 서비스 제공
     return ReleaseDebugService();

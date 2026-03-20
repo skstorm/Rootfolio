@@ -1,10 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:injectable/injectable.dart';
 
+@lazySingleton
 class ApiClient {
   final Dio _dio;
 
-  ApiClient({Dio? dio}) : _dio = dio ?? Dio() {
+  ApiClient() : _dio = Dio() {
     _dio.options.receiveTimeout = const Duration(seconds: 30);
     _dio.options.connectTimeout = const Duration(seconds: 30);
     

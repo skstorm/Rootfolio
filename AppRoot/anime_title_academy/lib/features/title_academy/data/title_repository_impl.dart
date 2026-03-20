@@ -1,5 +1,7 @@
 import 'dart:io';
 import '../../../core/error/failures.dart';
+import '../../../core/logging/app_logger.dart';
+import '../../../core/util/debug_service.dart';
 import '../../../core/utils/result.dart';
 import '../domain/image_analysis.dart';
 import '../domain/title_repository.dart';
@@ -7,7 +9,6 @@ import '../domain/title_result.dart';
 import 'gemini_llm_datasource.dart';
 import 'gemini_vision_datasource.dart';
 import 'prompt_template_service.dart';
-import '../../../core/constants/ui_constants.dart';
 import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: TitleRepository)
@@ -15,17 +16,25 @@ class TitleRepositoryImpl implements TitleRepository {
   final GeminiVisionDatasource _visionDatasource;
   final GeminiLlmDatasource _llmDatasource;
   final PromptTemplateService _promptService;
+  final AppLogger _logger;
 
   TitleRepositoryImpl(
     this._visionDatasource, 
     this._llmDatasource,
     this._promptService,
+    this._logger,
   );
 
   @override
-  Future<Result<ImageAnalysis>> analyzeVariables(File image) async {
+  Future<Result<ImageAnalysis>> analyzeImage(
+    File image, {
+    bool useCache = true,
+  }) async {
     try {
-      final response = await _visionDatasource.analyzeImage(image);
+      final response = await _visionDatasource.analyzeImage(
+        image,
+        useCache: useCache,
+      );
       return Success(ImageAnalysis(tags: response.extractedTags, confidence: 0.9));
     } catch (e) {
       return const Failure(ServerFailure('비전 분석에 실패했습니다.'));
@@ -35,59 +44,98 @@ class TitleRepositoryImpl implements TitleRepository {
   @override
   Future<Result<TitleResult>> generateTitle({
     required List<String> tags,
-    required String presetType,
-    required String presetPrompt,
+    required String styleId,
+    List<String> recentTitles = const [],
   }) async {
     try {
-      print('📝 [TitleRepo] LLM 자막 생성 시작 (Style: $presetType)');
-      final fullPrompt = _promptService.generateLlmPrompt(presetType, tags);
-      
-      final stopwatch = Stopwatch()..start();
-      final responseText = await _llmDatasource.generateTitleText(tags, fullPrompt);
-      stopwatch.stop();
-      
-      print('✅ [TitleRepo] LLM 응답 수신 (${stopwatch.elapsedMilliseconds}ms): ${responseText.title}');
+      final fullPrompt = _promptService.generateLlmPrompt(
+        styleId,
+        tags,
+        recentTitles: recentTitles,
+      );
+      final stopwatch = DebugService.startTimer(
+        'llm_generation',
+        scope: 'TitleRepository',
+      );
+      final responseText = await _llmDatasource.generateTitleText(fullPrompt);
+      DebugService.endTimer(
+        'llm_generation',
+        stopwatch,
+        scope: 'TitleRepository',
+        details: 'style=$styleId',
+      );
       
       return Success(TitleResult(
         text: responseText.title.trim().replaceAll('"', ''),
-        presetType: presetType,
+        presetType: styleId,
         timestamp: DateTime.now(),
       ));
     } catch (e) {
-      print('❌ [TitleRepo] generateTitle 오류: $e');
+      _logger.error('generateTitle failed', error: e, name: 'TitleRepository');
       return const Failure(AIGenerationFailure('자막 생성에 실패했습니다.'));
     }
   }
 
   @override
-  Future<Result<TitleResult>> generateTitleOneShot({
+  Future<Result<TitleResult>> generateTitleFromImage({
     required File image,
-    required String presetType,
-    required String presetPrompt,
+    required String styleId,
+    bool useCache = true,
   }) async {
+    final totalStopwatch = DebugService.startTimer(
+      'title_pipeline_total',
+      scope: 'TitleRepository',
+    );
     try {
-      print('🚀 [TitleRepo] 투스텝(Two-step) 파이프라인 시작...');
-      
       // 1단계: 이미지 분석 (태그 추출 - Vision 모델)
-      print('📸 [TitleRepo] 1단계: 이미지 태그 분석 중...');
-      final visionStopwatch = Stopwatch()..start();
-      final analysis = await analyzeVariables(image);
-      visionStopwatch.stop();
-      
-      if (analysis is Failure) return Failure((analysis as Failure).failure);
+      final visionStopwatch = DebugService.startTimer(
+        'vision_analysis',
+        scope: 'TitleRepository',
+      );
+      final analysis = await analyzeImage(image, useCache: useCache);
+      DebugService.endTimer(
+        'vision_analysis',
+        visionStopwatch,
+        scope: 'TitleRepository',
+      );
+
+      if (analysis is Failure<ImageAnalysis>) {
+        DebugService.endTimer(
+          'title_pipeline_total',
+          totalStopwatch,
+          scope: 'TitleRepository',
+          details: 'failed_at=vision',
+        );
+        return Failure(analysis.failure);
+      }
       final tags = (analysis as Success<ImageAnalysis>).data.tags;
-      print('✅ [TitleRepo] 분석 완료 (${visionStopwatch.elapsedMilliseconds}ms): $tags');
 
       // 2단계: 자막 생성 (LLM 전용 모델)
-      print('✍️ [TitleRepo] 2단계: 자막 문장 생성 중...');
-      return await generateTitle(
+      final result = await generateTitle(
         tags: tags,
-        presetType: presetType,
-        presetPrompt: presetPrompt,
+        styleId: styleId,
+        recentTitles: const [],
       );
+      DebugService.endTimer(
+        'title_pipeline_total',
+        totalStopwatch,
+        scope: 'TitleRepository',
+        details: 'style=$styleId',
+      );
+      return result;
     } catch (e, stack) {
-      print('❌ [TitleRepo] Two-step 파이프라인 오류: $e');
-      print(stack);
+      DebugService.endTimer(
+        'title_pipeline_total',
+        totalStopwatch,
+        scope: 'TitleRepository',
+        details: 'failed_with_exception',
+      );
+      _logger.error(
+        'Two-step pipeline failed',
+        error: e,
+        stackTrace: stack,
+        name: 'TitleRepository',
+      );
       return Failure(AIGenerationFailure('파이프라인 처리 실패: $e'));
     }
   }

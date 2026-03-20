@@ -7,7 +7,6 @@ import '../../../core/routes/route_names.dart';
 import 'package:anime_title_academy/features/scratch_ux/presentation/scratch_wrapper_view.dart';
 import 'package:anime_title_academy/features/scratch_ux/presentation/scratch_provider.dart';
 import 'package:anime_title_academy/core/util/debug_service.dart';
-import 'package:anime_title_academy/core/theme/scratch_styles.dart';
 import 'package:anime_title_academy/core/constants/ui_constants.dart';
 import 'title_provider.dart';
 
@@ -26,6 +25,24 @@ class ResultPage extends ConsumerStatefulWidget {
 }
 
 class _ResultPageState extends ConsumerState<ResultPage> {
+  Future<void> _reanalyzeWithoutCache() async {
+    if (widget.imagePath == null) return;
+    final recentTitles =
+        ref.read(titleNotifierProvider).asData?.value?.recentTitles ?? const <String>[];
+    ref.read(scratchProvider.notifier).reset();
+    await ref.read(titleNotifierProvider.notifier).runFullPipeline(
+      File(widget.imagePath!),
+      widget.style,
+      useCache: false,
+      recentTitles: recentTitles,
+    );
+  }
+
+  Future<void> _regenerateTitleOnly() async {
+    ref.read(scratchProvider.notifier).reset();
+    await ref.read(titleNotifierProvider.notifier).regenerateTitleOnly();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -33,10 +50,8 @@ class _ResultPageState extends ConsumerState<ResultPage> {
       if (widget.imagePath != null) {
         // 이전 상태 초기화 후 새로운 파이프라인 시작
         ref.read(titleNotifierProvider.notifier).reset();
-        
         ref.read(titleNotifierProvider.notifier).runFullPipeline(
           File(widget.imagePath!),
-          widget.style,
           widget.style,
         );
       }
@@ -48,6 +63,8 @@ class _ResultPageState extends ConsumerState<ResultPage> {
     final titleState = ref.watch(titleNotifierProvider);
     final isCleared = ref.watch(scratchProvider).isCleared;
     final imageFile = widget.imagePath != null ? File(widget.imagePath!) : null;
+    final titleViewState = titleState.asData?.value;
+    final titleResult = titleViewState?.result;
 
     return Scaffold(
       appBar: AppBar(
@@ -87,7 +104,7 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                 borderRadius: BorderRadius.circular(12),
               ),
               clipBehavior: Clip.hardEdge,
-              child: titleState is TitleLoading
+              child: titleState.isLoading
                   ? Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -100,9 +117,9 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                         ],
                       ),
                     )
-                  : titleState is TitleError
-                      ? Center(child: Text('오류 발생: ${(titleState as TitleError).message}'))
-                      : titleState is TitleSuccess
+                  : titleState.hasError
+                      ? Center(child: Text('오류 발생: ${titleState.error}'))
+                      : titleResult != null
                           ? Stack(
                               fit: StackFit.expand,
                               children: [
@@ -121,7 +138,7 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                                         : Clip.antiAlias,
                                     child: ScratchWrapperView(
                                       clearThreshold: UiConstants.scratchTotalClearThreshold,
-                                      targetText: (titleState as TitleSuccess).result.text,
+                                      targetText: titleResult.text,
                                       targetTextStyle: const TextStyle(
                                         fontSize: UiConstants.scratchTitleFontSize,
                                         fontWeight: FontWeight.bold,
@@ -134,7 +151,7 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                                         padding: const EdgeInsets.symmetric(horizontal: 16),
                                         child: Center(
                                           child: Text(
-                                            (titleState as TitleSuccess).result.text,
+                                            titleResult.text,
                                             textAlign: TextAlign.center,
                                             style: const TextStyle(
                                               fontSize: UiConstants.scratchTitleFontSize,
@@ -148,23 +165,50 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                                         ),
                                       ),
                                     ),
+                                    ),
                                   ),
-                                ),
                               ],
                             )
-                          : Center(child: const Text('준비 중...')),
+                          : const Center(child: Text('준비 중...')),
             ),
           ),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               OutlinedButton(
-                onPressed: () {
-                  ref.read(scratchProvider.notifier).reset();
-                  Navigator.of(context).pop();
-                },
+                onPressed: widget.imagePath != null && !titleState.isLoading
+                    ? _reanalyzeWithoutCache
+                    : null,
                 child: const Text('다시하기'),
+              ),
+              const SizedBox(width: 12),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (kDebugMode)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: TextButton.icon(
+                        icon: const Icon(Icons.refresh, color: Colors.redAccent),
+                        label: const Text(
+                          '리셋 (Debug)',
+                          style: TextStyle(color: Colors.redAccent),
+                        ),
+                        onPressed: () {
+                          ref.read(scratchProvider.notifier).reset();
+                        },
+                      ),
+                    ),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.auto_awesome),
+                    label: const Text('자막만 다시 생성'),
+                    onPressed: titleViewState != null && !titleState.isLoading
+                        ? _regenerateTitleOnly
+                        : null,
+                  ),
+                ],
               ),
               const SizedBox(width: 12),
               ElevatedButton.icon(
@@ -178,15 +222,6 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                       }
                     : null,
               ),
-              const SizedBox(width: 12),
-              if (kDebugMode)
-                TextButton.icon(
-                  icon: const Icon(Icons.refresh, color: Colors.redAccent),
-                  label: const Text('리셋 (Debug)', style: TextStyle(color: Colors.redAccent)),
-                  onPressed: () {
-                    ref.read(scratchProvider.notifier).reset();
-                  },
-                ),
             ],
           ),
           const SizedBox(height: 32),

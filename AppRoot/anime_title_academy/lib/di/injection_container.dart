@@ -1,6 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
-import 'manual_setup.dart';
+import 'injection_container.config.dart';
 
 final getIt = GetIt.instance;
 
@@ -9,4 +9,6 @@ final getIt = GetIt.instance;
   preferRelativeImports: true,
   asExtension: true,
 )
-void configureDependencies(String env) => manualSetup(getIt, env);
+Future<void> configureDependencies(String env) async {
+  getIt.init(environment: env);
+}

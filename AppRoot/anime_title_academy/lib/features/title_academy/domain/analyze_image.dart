@@ -8,7 +8,7 @@ class AnalyzeImageUseCase {
 
   AnalyzeImageUseCase(this._repository);
 
-  Future<Result<ImageAnalysis>> call(File image) async {
-    return await _repository.analyzeVariables(image);
+  Future<Result<ImageAnalysis>> call(File image, {bool useCache = true}) async {
+    return await _repository.analyzeImage(image, useCache: useCache);
   }
 }

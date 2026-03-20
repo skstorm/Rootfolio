@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class SdResponseModel {
   final String base64Image; // SD API는 base64 인코딩된 이미지를 반환
   final String? warning;

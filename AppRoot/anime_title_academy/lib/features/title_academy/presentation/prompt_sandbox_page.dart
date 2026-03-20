@@ -1,11 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get_it/get_it.dart';
-import '../data/prompt_template_service.dart';
-import '../domain/title_repository.dart';
 import '../../../core/utils/result.dart';
 import '../../../core/theme/app_colors.dart';
+import 'title_provider.dart';
 
 class PromptSandboxPage extends ConsumerStatefulWidget {
   final String? imagePath;
@@ -17,7 +15,6 @@ class PromptSandboxPage extends ConsumerStatefulWidget {
 }
 
 class _PromptSandboxPageState extends ConsumerState<PromptSandboxPage> {
-  final _promptService = GetIt.I<PromptTemplateService>();
   late String _selectedStyleId;
   late TextEditingController _tagsController;
   String _resultText = "";
@@ -26,7 +23,7 @@ class _PromptSandboxPageState extends ConsumerState<PromptSandboxPage> {
   @override
   void initState() {
     super.initState();
-    _selectedStyleId = _promptService.availableStyleIds.first;
+    _selectedStyleId = 'youth';
     _tagsController = TextEditingController(text: "청춘, 학교, 옥상, 노을, 학생");
   }
 
@@ -45,11 +42,10 @@ class _PromptSandboxPageState extends ConsumerState<PromptSandboxPage> {
     });
 
     try {
-      final repo = GetIt.I<TitleRepository>();
-      final result = await repo.generateTitleOneShot(
+      final repo = ref.read(titleRepositoryProvider);
+      final result = await repo.generateTitleFromImage(
         image: File(widget.imagePath!),
-        presetType: _selectedStyleId,
-        presetPrompt: _selectedStyleId,
+        styleId: _selectedStyleId,
       );
 
       switch (result) {
@@ -74,7 +70,11 @@ class _PromptSandboxPageState extends ConsumerState<PromptSandboxPage> {
 
   @override
   Widget build(BuildContext context) {
-    final fullPrompt = _promptService.generatePrompt(_selectedStyleId, _tagsController.text);
+    final promptService = ref.watch(promptTemplateServiceProvider);
+    final selectedStyleId = promptService.availableStyleIds.contains(_selectedStyleId)
+        ? _selectedStyleId
+        : promptService.availableStyleIds.first;
+    final fullPrompt = promptService.generatePrompt(selectedStyleId, _tagsController.text);
 
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
@@ -106,11 +106,11 @@ class _PromptSandboxPageState extends ConsumerState<PromptSandboxPage> {
             const Text('장르 선택', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             DropdownButton<String>(
-              value: _selectedStyleId,
+              value: selectedStyleId,
               isExpanded: true,
               dropdownColor: Colors.grey[900],
               style: const TextStyle(color: Colors.white),
-              items: _promptService.availableStyleIds.map((id) {
+              items: promptService.availableStyleIds.map((id) {
                 return DropdownMenuItem(value: id, child: Text(id));
               }).toList(),
               onChanged: (val) {
