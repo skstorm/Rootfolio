@@ -26,6 +26,20 @@ class TitleViewState {
   });
 }
 
+enum TitleLoadingMode {
+  fullPipeline,
+  regenerateOnly,
+}
+
+class TitleLoadingModeNotifier extends Notifier<TitleLoadingMode?> {
+  @override
+  TitleLoadingMode? build() => null;
+
+  void set(TitleLoadingMode mode) => state = mode;
+
+  void clear() => state = null;
+}
+
 final titleLoggerProvider = Provider<AppLogger>((ref) => getIt<AppLogger>());
 final promptTemplateServiceProvider =
     Provider<PromptTemplateService>((ref) => getIt<PromptTemplateService>());
@@ -34,6 +48,10 @@ final titleRepositoryProvider =
 
 final titleNotifierProvider =
     AsyncNotifierProvider<TitleNotifier, TitleViewState?>(TitleNotifier.new);
+final titleLoadingModeProvider =
+    NotifierProvider<TitleLoadingModeNotifier, TitleLoadingMode?>(
+      TitleLoadingModeNotifier.new,
+    );
 
 class TitleNotifier extends AsyncNotifier<TitleViewState?> {
   late final AnalyzeImageUseCase _analyzeImage;
@@ -59,11 +77,13 @@ class TitleNotifier extends AsyncNotifier<TitleViewState?> {
     bool useCache = true,
     List<String> recentTitles = const [],
   }) async {
+    ref.read(titleLoadingModeProvider.notifier).set(TitleLoadingMode.fullPipeline);
     state = const AsyncLoading();
 
     try {
       final analysis = await _analyzeImage(image, useCache: useCache);
       if (analysis is Failure<ImageAnalysis>) {
+        ref.read(titleLoadingModeProvider.notifier).clear();
         state = AsyncError(analysis.failure.message, StackTrace.current);
         return;
       }
@@ -75,6 +95,7 @@ class TitleNotifier extends AsyncNotifier<TitleViewState?> {
         recentTitles: recentTitles,
       );
       if (title is Failure<TitleResult>) {
+        ref.read(titleLoadingModeProvider.notifier).clear();
         state = AsyncError(title.failure.message, StackTrace.current);
         return;
       }
@@ -88,7 +109,9 @@ class TitleNotifier extends AsyncNotifier<TitleViewState?> {
           recentTitles: _appendRecentTitle(recentTitles, titleResult.text),
         ),
       );
+      ref.read(titleLoadingModeProvider.notifier).clear();
     } catch (error, stackTrace) {
+      ref.read(titleLoadingModeProvider.notifier).clear();
       _logger.error(
         'Unexpected title pipeline error',
         error: error,
@@ -105,6 +128,7 @@ class TitleNotifier extends AsyncNotifier<TitleViewState?> {
       return;
     }
 
+    ref.read(titleLoadingModeProvider.notifier).set(TitleLoadingMode.regenerateOnly);
     state = const AsyncLoading();
     try {
       final title = await _generateTitle(
@@ -113,6 +137,7 @@ class TitleNotifier extends AsyncNotifier<TitleViewState?> {
         recentTitles: current.recentTitles,
       );
       if (title is Failure<TitleResult>) {
+        ref.read(titleLoadingModeProvider.notifier).clear();
         state = AsyncError(title.failure.message, StackTrace.current);
         return;
       }
@@ -126,7 +151,9 @@ class TitleNotifier extends AsyncNotifier<TitleViewState?> {
           recentTitles: _appendRecentTitle(current.recentTitles, titleResult.text),
         ),
       );
+      ref.read(titleLoadingModeProvider.notifier).clear();
     } catch (error, stackTrace) {
+      ref.read(titleLoadingModeProvider.notifier).clear();
       _logger.error(
         'Regenerate title only failed',
         error: error,

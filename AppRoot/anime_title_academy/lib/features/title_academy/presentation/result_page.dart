@@ -61,10 +61,14 @@ class _ResultPageState extends ConsumerState<ResultPage> {
   @override
   Widget build(BuildContext context) {
     final titleState = ref.watch(titleNotifierProvider);
+    final loadingMode = ref.watch(titleLoadingModeProvider);
     final isCleared = ref.watch(scratchProvider).isCleared;
     final imageFile = widget.imagePath != null ? File(widget.imagePath!) : null;
     final titleViewState = titleState.asData?.value;
     final titleResult = titleViewState?.result;
+    final loadingMessage = loadingMode == TitleLoadingMode.regenerateOnly
+        ? 'AI가 자막을 재생성 하고 있습니다...'
+        : 'AI가 사진을 분석하여\n자막을 생성하고 있습니다...';
 
     return Scaffold(
       appBar: AppBar(
@@ -108,12 +112,14 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                   ? Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          CircularProgressIndicator(color: Colors.yellow),
-                          SizedBox(height: 20),
-                          Text('AI가 사진을 분석하여\n자막을 생성하고 있습니다...',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: Colors.white70)),
+                        children: [
+                          const CircularProgressIndicator(color: Colors.yellow),
+                          const SizedBox(height: 20),
+                          Text(
+                            loadingMessage,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Colors.white70),
+                          ),
                         ],
                       ),
                     )
