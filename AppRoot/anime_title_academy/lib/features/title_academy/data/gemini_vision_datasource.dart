@@ -2,6 +2,7 @@ import 'dart:io';
 
 import '../../../core/logging/app_logger.dart';
 import '../../../core/network/ai_client.dart';
+import '../../../core/util/debug_service.dart';
 import 'package:injectable/injectable.dart';
 import 'image_analysis_cache.dart';
 import 'image_payload_preparer.dart';
@@ -12,13 +13,12 @@ class GeminiVisionDatasource {
   final AiClient _aiClient;
   final ImagePayloadPreparer _payloadPreparer;
   final ImageAnalysisCache _cache;
-  final AppLogger _logger;
 
   GeminiVisionDatasource(
     this._aiClient,
     this._payloadPreparer,
     this._cache,
-    this._logger,
+    AppLogger logger,
   );
 
   Future<VisionResponseModel> analyzeImage(File image) async {
@@ -28,12 +28,32 @@ class GeminiVisionDatasource {
       final cacheKey = await _payloadPreparer.buildCacheKey(image);
       final cached = _cache.get(cacheKey);
       if (cached != null) {
-        _logger.debug('Vision analysis cache hit', name: 'GeminiVisionDatasource');
+        DebugService.cacheHit('vision_analysis', scope: 'GeminiVisionDatasource');
         return cached;
       }
 
+      final prepareStopwatch = DebugService.startTimer(
+        'vision_prepare',
+        scope: 'GeminiVisionDatasource',
+      );
       final preparedImageBytes = await _payloadPreparer.prepare(image);
+      DebugService.endTimer(
+        'vision_prepare',
+        prepareStopwatch,
+        scope: 'GeminiVisionDatasource',
+        details: 'bytes=${preparedImageBytes.length}',
+      );
+
+      final apiStopwatch = DebugService.startTimer(
+        'vision_api_call',
+        scope: 'GeminiVisionDatasource',
+      );
       final responseText = await _aiClient.analyzeImage(preparedImageBytes, prompt);
+      DebugService.endTimer(
+        'vision_api_call',
+        apiStopwatch,
+        scope: 'GeminiVisionDatasource',
+      );
       
       // 쉼표 단위로 태그 분리 및 공백 제거
       final tags = responseText

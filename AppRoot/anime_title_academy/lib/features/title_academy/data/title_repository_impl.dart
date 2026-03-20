@@ -1,6 +1,7 @@
 import 'dart:io';
 import '../../../core/error/failures.dart';
 import '../../../core/logging/app_logger.dart';
+import '../../../core/util/debug_service.dart';
 import '../../../core/utils/result.dart';
 import '../domain/image_analysis.dart';
 import '../domain/title_repository.dart';
@@ -40,16 +41,17 @@ class TitleRepositoryImpl implements TitleRepository {
     required String styleId,
   }) async {
     try {
-      _logger.debug('LLM title generation started for $styleId', name: 'TitleRepository');
       final fullPrompt = _promptService.generateLlmPrompt(styleId, tags);
-      
-      final stopwatch = Stopwatch()..start();
+      final stopwatch = DebugService.startTimer(
+        'llm_generation',
+        scope: 'TitleRepository',
+      );
       final responseText = await _llmDatasource.generateTitleText(fullPrompt);
-      stopwatch.stop();
-      
-      _logger.info(
-        'LLM title generation completed in ${stopwatch.elapsedMilliseconds}ms',
-        name: 'TitleRepository',
+      DebugService.endTimer(
+        'llm_generation',
+        stopwatch,
+        scope: 'TitleRepository',
+        details: 'style=$styleId',
       );
       
       return Success(TitleResult(
@@ -68,27 +70,53 @@ class TitleRepositoryImpl implements TitleRepository {
     required File image,
     required String styleId,
   }) async {
+    final totalStopwatch = DebugService.startTimer(
+      'title_pipeline_total',
+      scope: 'TitleRepository',
+    );
     try {
-      _logger.info('Two-step title pipeline started', name: 'TitleRepository');
-      
       // 1단계: 이미지 분석 (태그 추출 - Vision 모델)
-      final visionStopwatch = Stopwatch()..start();
+      final visionStopwatch = DebugService.startTimer(
+        'vision_analysis',
+        scope: 'TitleRepository',
+      );
       final analysis = await analyzeImage(image);
-      visionStopwatch.stop();
-      
-      if (analysis is Failure<ImageAnalysis>) return Failure(analysis.failure);
-      final tags = (analysis as Success<ImageAnalysis>).data.tags;
-      _logger.info(
-        'Image analysis completed in ${visionStopwatch.elapsedMilliseconds}ms',
-        name: 'TitleRepository',
+      DebugService.endTimer(
+        'vision_analysis',
+        visionStopwatch,
+        scope: 'TitleRepository',
       );
 
+      if (analysis is Failure<ImageAnalysis>) {
+        DebugService.endTimer(
+          'title_pipeline_total',
+          totalStopwatch,
+          scope: 'TitleRepository',
+          details: 'failed_at=vision',
+        );
+        return Failure(analysis.failure);
+      }
+      final tags = (analysis as Success<ImageAnalysis>).data.tags;
+
       // 2단계: 자막 생성 (LLM 전용 모델)
-      return await generateTitle(
+      final result = await generateTitle(
         tags: tags,
         styleId: styleId,
       );
+      DebugService.endTimer(
+        'title_pipeline_total',
+        totalStopwatch,
+        scope: 'TitleRepository',
+        details: 'style=$styleId',
+      );
+      return result;
     } catch (e, stack) {
+      DebugService.endTimer(
+        'title_pipeline_total',
+        totalStopwatch,
+        scope: 'TitleRepository',
+        details: 'failed_with_exception',
+      );
       _logger.error(
         'Two-step pipeline failed',
         error: e,

@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +10,39 @@ import '../logging/app_logger.dart';
 /// 디버그 서비스 인터페이스
 abstract class DebugService {
   bool get isDebugMode;
+
+  static void debugLog(String message, {String scope = 'DebugService'}) {
+    if (!kDebugMode) return;
+    developer.log(message, name: scope, level: 500);
+  }
+
+  static Stopwatch startTimer(String label, {String scope = 'DebugService'}) {
+    final stopwatch = Stopwatch()..start();
+    debugLog('$label started', scope: scope);
+    return stopwatch;
+  }
+
+  static void endTimer(
+    String label,
+    Stopwatch stopwatch, {
+    String scope = 'DebugService',
+    String? details,
+  }) {
+    if (!kDebugMode) return;
+    if (stopwatch.isRunning) {
+      stopwatch.stop();
+    }
+
+    final suffix = details == null || details.isEmpty ? '' : ' | $details';
+    debugLog(
+      '$label completed in ${stopwatch.elapsedMilliseconds}ms$suffix',
+      scope: scope,
+    );
+  }
+
+  static void cacheHit(String label, {String scope = 'DebugService'}) {
+    debugLog('$label cache hit', scope: scope);
+  }
   
   void log(String message);
   
@@ -28,19 +63,18 @@ abstract class DebugService {
 /// 개발 모드용 디버그 서비스 구현체
 class DevelopmentDebugService implements DebugService {
   final bool isEnabled;
-  final AppLogger _logger;
 
   DevelopmentDebugService({
     required AppLogger logger,
     this.isEnabled = true,
-  }) : _logger = logger;
+  });
 
   @override
   bool get isDebugMode => isEnabled;
 
   @override
   void log(String message) {
-    _logger.debug(message, name: 'DebugService');
+    DebugService.debugLog(message);
   }
 
   @override
