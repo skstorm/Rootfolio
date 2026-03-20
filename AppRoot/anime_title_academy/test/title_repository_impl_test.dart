@@ -1,10 +1,12 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:anime_title_academy/core/logging/app_logger.dart';
 import 'package:anime_title_academy/core/network/ai_client.dart';
 import 'package:anime_title_academy/core/utils/result.dart';
 import 'package:anime_title_academy/features/title_academy/data/gemini_llm_datasource.dart';
 import 'package:anime_title_academy/features/title_academy/data/gemini_vision_datasource.dart';
+import 'package:anime_title_academy/features/title_academy/data/image_analysis_cache.dart';
 import 'package:anime_title_academy/features/title_academy/data/image_payload_preparer.dart';
 import 'package:anime_title_academy/features/title_academy/data/llm_response_model.dart';
 import 'package:anime_title_academy/features/title_academy/data/prompt_template_service.dart';
@@ -14,7 +16,12 @@ import 'package:flutter_test/flutter_test.dart';
 
 class _FakeVisionDatasource extends GeminiVisionDatasource {
   _FakeVisionDatasource(this._handler)
-      : super(_FakeAiClient(), _NoopImagePayloadPreparer());
+      : super(
+          _FakeAiClient(),
+          _NoopImagePayloadPreparer(),
+          ImageAnalysisCache(),
+          AppLogger(),
+        );
 
   final Future<VisionResponseModel> Function(File image) _handler;
 
@@ -33,7 +40,7 @@ class _FakeLlmDatasource extends GeminiLlmDatasource {
 
 class _FakeAiClient implements AiClient {
   @override
-  Future<String> analyzeImage(File image, String prompt) {
+  Future<String> analyzeImage(Uint8List imageBytes, String prompt) {
     throw UnimplementedError();
   }
 
@@ -45,7 +52,7 @@ class _FakeAiClient implements AiClient {
 
 class _NoopImagePayloadPreparer extends ImagePayloadPreparer {
   @override
-  Future<File> prepare(File source) async => source;
+  Future<Uint8List> prepare(File source) async => Uint8List(0);
 }
 
 void main() {

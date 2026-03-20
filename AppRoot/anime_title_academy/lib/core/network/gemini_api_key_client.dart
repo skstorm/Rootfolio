@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:injectable/injectable.dart';
 
@@ -31,9 +31,8 @@ class GeminiApiKeyClient implements AiClient {
   }
 
   @override
-  Future<String> analyzeImage(File image, String prompt) async {
-    final bytes = await image.readAsBytes();
-    final imagePart = DataPart('image/jpeg', bytes);
+  Future<String> analyzeImage(Uint8List imageBytes, String prompt) async {
+    final imagePart = DataPart('image/jpeg', imageBytes);
     final textPart = TextPart(prompt);
 
     final response = await _visionModel.generateContent([

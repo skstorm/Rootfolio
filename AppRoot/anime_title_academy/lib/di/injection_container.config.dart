@@ -28,6 +28,7 @@ import '../features/share_kit/data/share_service_impl.dart' as _i798;
 import '../features/share_kit/domain/share_service.dart' as _i429;
 import '../features/title_academy/data/gemini_llm_datasource.dart' as _i959;
 import '../features/title_academy/data/gemini_vision_datasource.dart' as _i116;
+import '../features/title_academy/data/image_analysis_cache.dart' as _i368;
 import '../features/title_academy/data/image_payload_preparer.dart' as _i552;
 import '../features/title_academy/data/prompt_template_service.dart' as _i561;
 import '../features/title_academy/data/title_repository_impl.dart' as _i900;
@@ -51,6 +52,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i221.AppConfig>(() => _i221.AppConfig());
     gh.lazySingleton<_i412.AppLogger>(() => _i412.AppLogger());
     gh.lazySingleton<_i510.ApiClient>(() => _i510.ApiClient());
+    gh.lazySingleton<_i368.ImageAnalysisCache>(
+      () => _i368.ImageAnalysisCache(),
+    );
     gh.lazySingleton<_i561.PromptTemplateService>(
       () => _i561.PromptTemplateService(),
     );
@@ -91,6 +95,8 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i116.GeminiVisionDatasource(
         gh<_i303.AiClient>(),
         gh<_i552.ImagePayloadPreparer>(),
+        gh<_i368.ImageAnalysisCache>(),
+        gh<_i412.AppLogger>(),
       ),
     );
     gh.lazySingleton<_i290.TitleRepository>(
