@@ -32,7 +32,7 @@ class ScratchWrapperView extends ConsumerWidget {
 
     return RevealParticle(
       clipBehavior: Clip.none,
-      isTriggered: scratchState.isCleared,
+      triggerId: scratchState.revealEventId,
       child: ScratchCanvas(
         strokeWidth: strokeWidth ?? UiConstants.scratchStrokeWidth,
         erasureIntensity: erasureIntensity ?? UiConstants.scratchErasureIntensity,

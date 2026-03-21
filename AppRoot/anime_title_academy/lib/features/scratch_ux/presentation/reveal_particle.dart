@@ -3,13 +3,13 @@ import 'package:confetti/confetti.dart';
 
 class RevealParticle extends StatefulWidget {
   final Widget child; // 메인 콘텐츠 
-  final bool isTriggered; // 폭발 발동 여부
+  final int triggerId; // 폭발 발동 이벤트 ID
   final Clip clipBehavior; // 클리핑 동작
 
   const RevealParticle({
     super.key,
     required this.child,
-    required this.isTriggered,
+    required this.triggerId,
     this.clipBehavior = Clip.hardEdge,
   });
 
@@ -29,7 +29,7 @@ class _RevealParticleState extends State<RevealParticle> {
   @override
   void didUpdateWidget(RevealParticle oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.isTriggered && !oldWidget.isTriggered) {
+    if (widget.triggerId != oldWidget.triggerId) {
       _confettiController.play();
     }
   }

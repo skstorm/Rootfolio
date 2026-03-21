@@ -3,13 +3,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class ScratchState {
   final bool isCleared;
   final double percent;
+  final int revealEventId;
 
-  const ScratchState({this.isCleared = false, this.percent = 0.0});
+  const ScratchState({
+    this.isCleared = false,
+    this.percent = 0.0,
+    this.revealEventId = 0,
+  });
 
-  ScratchState copyWith({bool? isCleared, double? percent}) {
+  ScratchState copyWith({
+    bool? isCleared,
+    double? percent,
+    int? revealEventId,
+  }) {
     return ScratchState(
       isCleared: isCleared ?? this.isCleared,
       percent: percent ?? this.percent,
+      revealEventId: revealEventId ?? this.revealEventId,
     );
   }
 }
@@ -24,7 +34,11 @@ class ScratchNotifier extends Notifier<ScratchState> {
   }
 
   void setCleared() {
-    state = state.copyWith(isCleared: true, percent: 1.0);
+    state = state.copyWith(
+      isCleared: true,
+      percent: 1.0,
+      revealEventId: state.revealEventId + 1,
+    );
   }
 
   void reset() {
