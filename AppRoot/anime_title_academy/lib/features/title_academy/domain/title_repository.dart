@@ -15,6 +15,7 @@ abstract class TitleRepository {
     required List<String> tags,
     required String styleId,
     List<String> recentTitles = const [],
+    String? llmModel,
   });
 
   /// 이미지 분석과 LLM 제목 생성을 순차적으로 수행합니다.
@@ -22,5 +23,6 @@ abstract class TitleRepository {
     required File image,
     required String styleId,
     bool useCache = true,
+    String? llmModel,
   });
 }

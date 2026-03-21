@@ -18,7 +18,7 @@ class _CountingAiClient implements AiClient {
   }
 
   @override
-  Future<String> generateText(String prompt) {
+  Future<String> generateText(String prompt, {String? model}) {
     throw UnimplementedError();
   }
 }

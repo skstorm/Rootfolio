@@ -9,6 +9,7 @@ import '../data/prompt_template_service.dart';
 import '../domain/analyze_image.dart';
 import '../domain/generate_title.dart';
 import '../domain/image_analysis.dart';
+import '../domain/title_generation_model.dart';
 import '../domain/title_repository.dart';
 import '../domain/title_result.dart';
 
@@ -76,6 +77,7 @@ class TitleNotifier extends AsyncNotifier<TitleViewState?> {
     String styleId, {
     bool useCache = true,
     List<String> recentTitles = const [],
+    TitleGenerationModel llmModel = TitleGenerationModel.fast,
   }) async {
     ref.read(titleLoadingModeProvider.notifier).set(TitleLoadingMode.fullPipeline);
     state = const AsyncLoading();
@@ -93,6 +95,7 @@ class TitleNotifier extends AsyncNotifier<TitleViewState?> {
         tags: tags,
         styleId: styleId,
         recentTitles: recentTitles,
+        llmModel: llmModel.modelName,
       );
       if (title is Failure<TitleResult>) {
         ref.read(titleLoadingModeProvider.notifier).clear();
@@ -122,7 +125,9 @@ class TitleNotifier extends AsyncNotifier<TitleViewState?> {
     }
   }
 
-  Future<void> regenerateTitleOnly() async {
+  Future<void> regenerateTitleOnly({
+    TitleGenerationModel llmModel = TitleGenerationModel.fast,
+  }) async {
     final current = state.asData?.value;
     if (current == null) {
       return;
@@ -135,6 +140,7 @@ class TitleNotifier extends AsyncNotifier<TitleViewState?> {
         tags: current.tags,
         styleId: current.styleId,
         recentTitles: current.recentTitles,
+        llmModel: llmModel.modelName,
       );
       if (title is Failure<TitleResult>) {
         ref.read(titleLoadingModeProvider.notifier).clear();

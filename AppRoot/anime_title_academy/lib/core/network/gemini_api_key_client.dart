@@ -8,25 +8,32 @@ import 'ai_client.dart';
 
 @LazySingleton(as: AiClient)
 class GeminiApiKeyClient implements AiClient {
+  final AppConfig _config;
   final GenerativeModel _visionModel;
   final GenerativeModel _llmModel;
   final AppLogger _logger;
 
-  GeminiApiKeyClient(AppConfig config, this._logger)
+  GeminiApiKeyClient(this._config, this._logger)
       : _visionModel = GenerativeModel(
-          model: config.visionModel,
-          apiKey: config.geminiApiKey,
+          model: _config.visionModel,
+          apiKey: _config.geminiApiKey,
         ),
         _llmModel = GenerativeModel(
-          model: config.llmModel,
-          apiKey: config.geminiApiKey,
+          model: _config.llmModel,
+          apiKey: _config.geminiApiKey,
         ) {
     _logger.info('Gemini API client initialized', name: 'GeminiApiKeyClient');
   }
 
   @override
-  Future<String> generateText(String prompt) async {
-    final response = await _llmModel.generateContent([Content.text(prompt)]);
+  Future<String> generateText(String prompt, {String? model}) async {
+    final llmModel = model == null || model == _config.llmModel
+        ? _llmModel
+        : GenerativeModel(
+            model: model,
+            apiKey: _config.geminiApiKey,
+          );
+    final response = await llmModel.generateContent([Content.text(prompt)]);
     return response.text ?? '';
   }
 

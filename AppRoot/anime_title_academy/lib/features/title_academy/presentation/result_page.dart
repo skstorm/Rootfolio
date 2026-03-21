@@ -8,6 +8,7 @@ import 'package:anime_title_academy/features/scratch_ux/presentation/scratch_wra
 import 'package:anime_title_academy/features/scratch_ux/presentation/scratch_provider.dart';
 import 'package:anime_title_academy/core/util/debug_service.dart';
 import 'package:anime_title_academy/core/constants/ui_constants.dart';
+import '../domain/title_generation_model.dart';
 import 'title_provider.dart';
 
 class ResultPage extends ConsumerStatefulWidget {
@@ -25,6 +26,8 @@ class ResultPage extends ConsumerStatefulWidget {
 }
 
 class _ResultPageState extends ConsumerState<ResultPage> {
+  TitleGenerationModel _selectedLlmModel = TitleGenerationModel.fast;
+
   Future<void> _reanalyzeWithoutCache() async {
     if (widget.imagePath == null) return;
     final recentTitles =
@@ -35,12 +38,15 @@ class _ResultPageState extends ConsumerState<ResultPage> {
       widget.style,
       useCache: false,
       recentTitles: recentTitles,
+      llmModel: _selectedLlmModel,
     );
   }
 
   Future<void> _regenerateTitleOnly() async {
     ref.read(scratchProvider.notifier).reset();
-    await ref.read(titleNotifierProvider.notifier).regenerateTitleOnly();
+    await ref.read(titleNotifierProvider.notifier).regenerateTitleOnly(
+          llmModel: _selectedLlmModel,
+        );
   }
 
   @override
@@ -53,6 +59,7 @@ class _ResultPageState extends ConsumerState<ResultPage> {
         ref.read(titleNotifierProvider.notifier).runFullPipeline(
           File(widget.imagePath!),
           widget.style,
+          llmModel: _selectedLlmModel,
         );
       }
     });
@@ -183,11 +190,42 @@ class _ResultPageState extends ConsumerState<ResultPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              OutlinedButton(
-                onPressed: widget.imagePath != null && !titleState.isLoading
-                    ? _reanalyzeWithoutCache
-                    : null,
-                child: const Text('다시하기'),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: PopupMenuButton<TitleGenerationModel>(
+                      enabled: !titleState.isLoading,
+                      tooltip: 'LLM 선택',
+                      initialValue: _selectedLlmModel,
+                      onSelected: (model) {
+                        setState(() {
+                          _selectedLlmModel = model;
+                        });
+                      },
+                      itemBuilder: (context) => TitleGenerationModel.values
+                          .map(
+                            (model) => PopupMenuItem<TitleGenerationModel>(
+                              value: model,
+                              child: Text(model.displayLabel),
+                            ),
+                          )
+                          .toList(),
+                      child: OutlinedButton.icon(
+                        onPressed: null,
+                        icon: const Icon(Icons.arrow_drop_down),
+                        label: Text(_selectedLlmModel.label),
+                      ),
+                    ),
+                  ),
+                  OutlinedButton(
+                    onPressed: widget.imagePath != null && !titleState.isLoading
+                        ? _reanalyzeWithoutCache
+                        : null,
+                    child: const Text('다시하기'),
+                  ),
+                ],
               ),
               const SizedBox(width: 12),
               Column(

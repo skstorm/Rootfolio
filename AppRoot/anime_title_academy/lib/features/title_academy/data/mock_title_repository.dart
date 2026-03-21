@@ -20,6 +20,7 @@ class MockTitleRepository implements TitleRepository {
     required List<String> tags,
     required String styleId,
     List<String> recentTitles = const [],
+    String? llmModel,
   }) async {
     await Future.delayed(const Duration(milliseconds: 800));
     return Success(TitleResult(
@@ -34,6 +35,7 @@ class MockTitleRepository implements TitleRepository {
     required File image,
     required String styleId,
     bool useCache = true,
+    String? llmModel,
   }) async {
     await Future.delayed(const Duration(milliseconds: 1000));
     return Success(TitleResult(

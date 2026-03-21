@@ -46,6 +46,7 @@ class TitleRepositoryImpl implements TitleRepository {
     required List<String> tags,
     required String styleId,
     List<String> recentTitles = const [],
+    String? llmModel,
   }) async {
     try {
       final fullPrompt = _promptService.generateLlmPrompt(
@@ -57,12 +58,15 @@ class TitleRepositoryImpl implements TitleRepository {
         'llm_generation',
         scope: 'TitleRepository',
       );
-      final responseText = await _llmDatasource.generateTitleText(fullPrompt);
+      final responseText = await _llmDatasource.generateTitleText(
+        fullPrompt,
+        model: llmModel,
+      );
       DebugService.endTimer(
         'llm_generation',
         stopwatch,
         scope: 'TitleRepository',
-        details: 'style=$styleId',
+        details: 'style=$styleId, model=${llmModel ?? 'default'}',
       );
       
       return Success(TitleResult(
@@ -81,6 +85,7 @@ class TitleRepositoryImpl implements TitleRepository {
     required File image,
     required String styleId,
     bool useCache = true,
+    String? llmModel,
   }) async {
     final totalStopwatch = DebugService.startTimer(
       'title_pipeline_total',
@@ -115,6 +120,7 @@ class TitleRepositoryImpl implements TitleRepository {
         tags: tags,
         styleId: styleId,
         recentTitles: const [],
+        llmModel: llmModel,
       );
       DebugService.endTimer(
         'title_pipeline_total',

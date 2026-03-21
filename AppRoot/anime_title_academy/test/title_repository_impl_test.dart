@@ -38,7 +38,10 @@ class _FakeLlmDatasource extends GeminiLlmDatasource {
   final Future<LlmResponseModel> Function(String prompt) _handler;
 
   @override
-  Future<LlmResponseModel> generateTitleText(String prompt) => _handler(prompt);
+  Future<LlmResponseModel> generateTitleText(
+    String prompt, {
+    String? model,
+  }) => _handler(prompt);
 }
 
 class _FakeAiClient implements AiClient {
@@ -48,7 +51,7 @@ class _FakeAiClient implements AiClient {
   }
 
   @override
-  Future<String> generateText(String prompt) {
+  Future<String> generateText(String prompt, {String? model}) {
     throw UnimplementedError();
   }
 }

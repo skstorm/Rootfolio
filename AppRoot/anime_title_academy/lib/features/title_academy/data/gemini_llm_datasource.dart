@@ -8,9 +8,12 @@ class GeminiLlmDatasource {
 
   GeminiLlmDatasource(this._aiClient);
 
-  Future<LlmResponseModel> generateTitleText(String prompt) async {
+  Future<LlmResponseModel> generateTitleText(
+    String prompt, {
+    String? model,
+  }) async {
     try {
-      final responseText = await _aiClient.generateText(prompt);
+      final responseText = await _aiClient.generateText(prompt, model: model);
       return LlmResponseModel(title: responseText.trim().replaceAll('"', ''));
     } catch (e) {
       throw Exception('LLM 자막 생성 중 오류가 발생했습니다: $e');

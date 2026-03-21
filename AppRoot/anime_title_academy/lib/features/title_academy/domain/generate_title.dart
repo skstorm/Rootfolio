@@ -11,11 +11,13 @@ class GenerateTitleUseCase {
     required List<String> tags,
     required String styleId,
     List<String> recentTitles = const [],
+    String? llmModel,
   }) async {
     return await _repository.generateTitle(
       tags: tags,
       styleId: styleId,
       recentTitles: recentTitles,
+      llmModel: llmModel,
     );
   }
 }
