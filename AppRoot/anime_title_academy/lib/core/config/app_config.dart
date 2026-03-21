@@ -14,7 +14,7 @@ class AppConfig {
   String get llmModel =>
       dotenv.env['GEMINI_LLM_MODEL']?.trim().isNotEmpty == true
           ? dotenv.env['GEMINI_LLM_MODEL']!.trim()
-          : 'gemini-flash-latest';
+          : 'gemini-2.5-flash-lite';
 
   bool get isDebugLoggingEnabled => kDebugMode;
 
