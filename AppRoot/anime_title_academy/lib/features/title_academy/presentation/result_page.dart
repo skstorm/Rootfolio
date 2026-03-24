@@ -266,28 +266,30 @@ class _ResultPageState extends ConsumerState<ResultPage> {
       appBar: AppBar(
         title: const Text('결과 확인'),
         actions: [
-          IconButton(
-            icon: Icon(
+          if (kDebugMode) ...[
+            IconButton(
+              icon: Icon(
               ref.watch(debugEnabledProvider) 
                   ? Icons.bug_report 
                   : Icons.bug_report_outlined,
               color: ref.watch(debugEnabledProvider) ? Colors.redAccent : Colors.white70,
-            ),
-            onPressed: () {
-              ref.read(debugEnabledProvider.notifier).toggle();
-            },
-            tooltip: '디버그 UI 토글',
-          ),
-          if (ref.watch(debugEnabledProvider))
-            IconButton(
-              icon: const Icon(Icons.science_outlined, color: Colors.orangeAccent),
+              ),
               onPressed: () {
-                context.push(RouteNames.promptSandbox, extra: {
-                  'imagePath': widget.imagePath,
-                });
+              ref.read(debugEnabledProvider.notifier).toggle();
               },
-              tooltip: '프롬프트 샌드박스',
+              tooltip: '디버그 UI 토글',
             ),
+            if (ref.watch(debugEnabledProvider))
+              IconButton(
+                icon: const Icon(Icons.science_outlined, color: Colors.orangeAccent),
+                onPressed: () {
+                  context.push(RouteNames.promptSandbox, extra: {
+                    'imagePath': widget.imagePath,
+                  });
+                },
+                tooltip: '프롬프트 샌드박스',
+              ),
+          ],
         ],
       ),
       body: Column(

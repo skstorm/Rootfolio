@@ -2,10 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../di/injection_container.dart';
-import '../debug/debug_service.dart';
-import '../debug/dev_debug_service.dart';
-import '../debug/release_debug_service.dart';
-import '../logging/app_logger.dart';
+import '../../core/debug/debug_service.dart';
+import '../../core/debug/dev_debug_service.dart';
+import '../../core/debug/release_debug_service.dart';
+import '../../core/logging/app_logger.dart';
 
 /// 디버그 활성화 상태를 관리하는 노티파이어
 class DebugEnabledNotifier extends Notifier<bool> {
