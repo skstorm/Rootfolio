@@ -1,7 +1,7 @@
 import 'dart:io';
 import '../../../core/error/failures.dart';
 import '../../../core/logging/app_logger.dart';
-import '../../../core/util/debug_service.dart';
+import '../../../core/utils/debug_service.dart';
 import '../../../core/utils/result.dart';
 import '../domain/image_analysis.dart';
 import '../domain/title_repository.dart';

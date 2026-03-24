@@ -2,7 +2,7 @@ import 'dart:io';
 
 import '../../../core/logging/app_logger.dart';
 import '../../../core/network/ai_client.dart';
-import '../../../core/util/debug_service.dart';
+import '../../../core/utils/debug_service.dart';
 import 'package:injectable/injectable.dart';
 import 'image_analysis_cache.dart';
 import 'image_payload_preparer.dart';

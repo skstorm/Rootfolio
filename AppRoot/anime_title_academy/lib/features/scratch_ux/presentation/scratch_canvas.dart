@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/util/debug_service.dart';
+import '../../../core/utils/debug_service.dart';
 import '../../../core/constants/ui_constants.dart';
 import 'scratch_painter.dart';
 import 'scratch_provider.dart';

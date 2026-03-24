@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/util/debug_service.dart';
+import '../../../core/utils/debug_service.dart';
 import '../../../core/constants/ui_constants.dart';
 
 class ScratchPainter extends CustomPainter {
