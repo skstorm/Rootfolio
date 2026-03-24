@@ -1,9 +1,9 @@
+import 'package:anime_title_academy/core/constants/usage_quota_constants.dart';
 import 'package:anime_title_academy/core/config/app_runtime_config.dart';
 import 'package:anime_title_academy/features/title_academy/data/title_usage_local_datasource.dart';
 import 'package:anime_title_academy/features/title_academy/domain/quota_consume_result.dart';
 import 'package:anime_title_academy/features/title_academy/domain/title_generation_model.dart';
 import 'package:anime_title_academy/features/title_academy/domain/title_model_usage_quota.dart';
-import 'package:anime_title_academy/features/title_academy/domain/title_usage_quota_policy.dart';
 import 'package:anime_title_academy/features/title_academy/domain/title_usage_quota_snapshot.dart';
 
 class TitleUsageQuotaService {
