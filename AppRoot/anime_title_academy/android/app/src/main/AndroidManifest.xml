@@ -3,10 +3,10 @@
         android:label="anime_title_academy"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-        <!-- Test app id for rewarded-ad SDK integration. Replace for production release. -->
+        <!-- Build type specific AdMob app id is injected from Gradle manifest placeholders. -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713" />
+            android:value="${admobApplicationId}" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
