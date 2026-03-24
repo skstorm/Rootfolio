@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:anime_title_academy/core/ads/ad_service.dart';
+import 'package:anime_title_academy/core/config/app_runtime_config.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/logging/app_logger.dart';
@@ -10,6 +12,8 @@ import '../domain/analyze_image.dart';
 import '../domain/generate_title.dart';
 import '../domain/image_analysis.dart';
 import '../domain/title_generation_model.dart';
+import '../domain/title_usage_quota_service.dart';
+import '../domain/title_usage_quota_snapshot.dart';
 import '../domain/title_repository.dart';
 import '../domain/title_result.dart';
 
@@ -46,6 +50,15 @@ final promptTemplateServiceProvider =
     Provider<PromptTemplateService>((ref) => getIt<PromptTemplateService>());
 final titleRepositoryProvider =
     Provider<TitleRepository>((ref) => getIt<TitleRepository>());
+final appRuntimeConfigProvider =
+    Provider<AppRuntimeConfig>((ref) => getIt<AppRuntimeConfig>());
+final adServiceProvider = Provider<AdService>((ref) => getIt<AdService>());
+final titleUsageQuotaServiceProvider =
+    Provider<TitleUsageQuotaService>((ref) => getIt<TitleUsageQuotaService>());
+final titleQuotaProvider = FutureProvider<TitleUsageQuotaSnapshot>((ref) async {
+  final service = ref.read(titleUsageQuotaServiceProvider);
+  return service.getQuota();
+});
 
 final titleNotifierProvider =
     AsyncNotifierProvider<TitleNotifier, TitleViewState?>(TitleNotifier.new);

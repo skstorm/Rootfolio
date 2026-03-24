@@ -47,6 +47,7 @@ dependencies:
   path_provider: ^2.1.5
   share_plus: ^12.0.1
   permission_handler: ^12.0.1
+  shared_preferences: ^2.5.3
   # firebase_core: ^4.5.0       # Phase 4에서 Firebase 설정 파일(google-services.json) 추가 후 활성화
   # firebase_analytics: ^12.1.3  # Phase 4에서 Firebase 설정 파일(google-services.json) 추가 후 활성화
   confetti: ^0.8.0
