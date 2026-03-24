@@ -1,8 +1,8 @@
 import 'package:anime_title_academy/core/ads/ad_runtime_mode.dart';
 import 'package:anime_title_academy/core/ads/ad_service.dart';
+import 'package:anime_title_academy/core/ads/fake_rewarded_ad_service.dart';
+import 'package:anime_title_academy/core/ads/google_rewarded_ad_service.dart';
 import 'package:anime_title_academy/core/ads/noop_ad_service.dart';
-import 'package:anime_title_academy/core/ads/production_rewarded_ad_service.dart';
-import 'package:anime_title_academy/core/ads/test_rewarded_ad_service.dart';
 import 'package:anime_title_academy/core/config/app_runtime_config.dart';
 import 'package:anime_title_academy/features/title_academy/data/title_usage_local_datasource.dart';
 import 'package:anime_title_academy/features/title_academy/domain/title_usage_quota_service.dart';
@@ -51,10 +51,12 @@ Future<void> configureDependencies(String env) async {
       switch (runtimeConfig.rewardedAdMode) {
         case RewardedAdMode.disabled:
           return const NoopAdService();
+        case RewardedAdMode.fake:
+          return const FakeRewardedAdService();
         case RewardedAdMode.test:
-          return const TestRewardedAdService();
+          return const GoogleRewardedAdService(mode: RewardedAdMode.test);
         case RewardedAdMode.production:
-          return const ProductionRewardedAdService();
+          return const GoogleRewardedAdService(mode: RewardedAdMode.production);
       }
     });
   }

@@ -36,5 +36,16 @@ void main() {
       expect(config.bypassQuotaAndAds, isFalse);
       expect(config.rewardedAdMode, RewardedAdMode.production);
     });
+
+    test('honors fake ad mode override', () {
+      final config = AppRuntimeConfig.resolve(
+        isDebugBuild: true,
+        forceQuotaAndAds: true,
+        rewardedAdModeOverride: 'fake',
+      );
+
+      expect(config.bypassQuotaAndAds, isFalse);
+      expect(config.rewardedAdMode, RewardedAdMode.fake);
+    });
   });
 }

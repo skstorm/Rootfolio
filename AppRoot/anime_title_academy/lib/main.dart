@@ -4,7 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'core/ads/mobile_ads_bootstrap.dart';
 import 'core/config/app_config.dart';
+import 'core/config/app_runtime_config.dart';
 import 'core/theme/app_theme.dart';
 import 'core/routes/app_router.dart';
 import 'core/constants/app_constants.dart';
@@ -38,6 +40,7 @@ void main() async {
   await dotenv.load(fileName: ".env");
   
   await configureDependencies(DIConstants.prod);
+  await MobileAdsBootstrap.initializeIfNeeded(getIt<AppRuntimeConfig>());
   getIt<AppConfig>().validate();
   
   runApp(

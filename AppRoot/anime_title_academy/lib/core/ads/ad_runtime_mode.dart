@@ -1,5 +1,6 @@
 enum RewardedAdMode {
   disabled,
+  fake,
   test,
   production,
 }
@@ -13,6 +14,9 @@ extension RewardedAdModeX on RewardedAdMode {
     switch (overrideValue.trim().toLowerCase()) {
       case 'disabled':
         return RewardedAdMode.disabled;
+      case 'fake':
+      case 'mock':
+        return RewardedAdMode.fake;
       case 'test':
       case 'debugtest':
         return RewardedAdMode.test;
@@ -37,6 +41,8 @@ extension RewardedAdModeX on RewardedAdMode {
     switch (this) {
       case RewardedAdMode.disabled:
         return '광고 비활성화';
+      case RewardedAdMode.fake:
+        return '가짜 광고 모드';
       case RewardedAdMode.test:
         return '테스트 광고 모드';
       case RewardedAdMode.production:
