@@ -6,12 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/routes/route_names.dart';
 import 'package:anime_title_academy/core/ads/ad_runtime_mode.dart';
-import 'package:anime_title_academy/core/debug/debug_service.dart';
 import 'package:anime_title_academy/shared/providers/debug_provider.dart';
 import 'package:anime_title_academy/core/constants/ui_constants.dart';
 import 'package:anime_title_academy/features/scratch_ux/presentation/scratch_provider.dart';
 import 'package:anime_title_academy/features/scratch_ux/presentation/scratch_wrapper_view.dart';
-import '../domain/title_model_usage_quota.dart';
 import '../domain/title_generation_model.dart';
 import 'title_provider.dart';
 
@@ -38,11 +36,8 @@ class _ResultPageState extends ConsumerState<ResultPage> {
   }
 
   Future<void> _runFullPipeline({required bool useCache}) async {
-    if (widget.imagePath == null) {
-      return;
-    }
-
-    await _executeWithQuota(
+    if (widget.imagePath == null) return;
+    await _runWithQuotaGate(
       onAllowed: () async {
         final recentTitles =
             ref.read(titleNotifierProvider).asData?.value?.recentTitles ??
@@ -60,7 +55,7 @@ class _ResultPageState extends ConsumerState<ResultPage> {
   }
 
   Future<void> _regenerateTitleOnly() async {
-    await _executeWithQuota(
+    await _runWithQuotaGate(
       onAllowed: () async {
         ref.read(scratchProvider.notifier).reset();
         await ref.read(titleNotifierProvider.notifier).regenerateTitleOnly(
@@ -70,70 +65,38 @@ class _ResultPageState extends ConsumerState<ResultPage> {
     );
   }
 
-  Future<void> _executeWithQuota({
+  /// Quota 확인 → 광고 → 충전 → 실행 흐름을 UseCase에 위임합니다.
+  /// UI(dialog, snackbar)는 이 메서드에서 콜백으로 제공합니다.
+  Future<void> _runWithQuotaGate({
     required Future<void> Function() onAllowed,
   }) async {
-    if (_isQuotaActionInProgress) {
-      return;
-    }
+    if (_isQuotaActionInProgress) return;
 
-    setState(() {
-      _isQuotaActionInProgress = true;
-    });
+    setState(() => _isQuotaActionInProgress = true);
 
     try {
-      final quotaService = ref.read(titleUsageQuotaServiceProvider);
-      final consumeResult = await quotaService.consume(_selectedLlmModel);
-      ref.invalidate(titleQuotaProvider);
-
-      if (consumeResult.isAllowed) {
-        await onAllowed();
-        return;
-      }
-
-      final shouldWatchAd = await _showQuotaDialog(
-        consumeResult.quota.forModel(_selectedLlmModel),
+      final useCase = ref.read(quotaGatedPipelineProvider);
+      await useCase.execute(
+        model: _selectedLlmModel,
+        onAllowed: onAllowed,
+        onNeedAd: () => _showQuotaDialog(_selectedLlmModel),
+        onMessage: _showSnackBar,
       );
-      if (!shouldWatchAd || !mounted) {
-        return;
-      }
-
-      final adResult = await ref.read(adServiceProvider).showRewardedAd(
-            model: _selectedLlmModel,
-          );
-      if (!mounted) {
-        return;
-      }
-
-      if (!adResult.isRewarded) {
-        _showSnackBar(adResult.message ?? '광고 시청이 완료되지 않았습니다.');
-        return;
-      }
-
-      await quotaService.reward(_selectedLlmModel);
       ref.invalidate(titleQuotaProvider);
-
-      final retryConsume = await quotaService.consume(_selectedLlmModel);
-      ref.invalidate(titleQuotaProvider);
-      if (!retryConsume.isAllowed) {
-        _showSnackBar('충전 후에도 사용권을 확보하지 못했습니다.');
-        return;
-      }
-
-      await onAllowed();
-      if (adResult.message != null && adResult.message!.isNotEmpty) {
-        _showSnackBar(adResult.message!);
-      }
     } finally {
       if (mounted) {
-        setState(() {
-          _isQuotaActionInProgress = false;
-        });
+        setState(() => _isQuotaActionInProgress = false);
       }
     }
   }
 
-  Future<bool> _showQuotaDialog(TitleModelUsageQuota quota) async {
+  Future<bool> _showQuotaDialog(TitleGenerationModel model) async {
+    // quota 상세 정보를 가져와 다이얼로그 표시
+    final quotaSnapshot = await ref.read(titleUsageQuotaServiceProvider).getQuota();
+    final quota = quotaSnapshot.forModel(model);
+
+    if (!mounted) return false;
+
     final result = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
@@ -188,10 +151,7 @@ class _ResultPageState extends ConsumerState<ResultPage> {
           children: [
             Text(
               summaryText,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 12,
-              ),
+              style: const TextStyle(color: Colors.white70, fontSize: 12),
               textAlign: TextAlign.center,
             ),
             if (rewardText != null)
@@ -199,10 +159,7 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                 padding: const EdgeInsets.only(top: 2),
                 child: Text(
                   rewardText,
-                  style: const TextStyle(
-                    color: Colors.white54,
-                    fontSize: 11,
-                  ),
+                  style: const TextStyle(color: Colors.white54, fontSize: 11),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -211,10 +168,7 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                 padding: const EdgeInsets.only(top: 2),
                 child: Text(
                   modeText,
-                  style: const TextStyle(
-                    color: Colors.amberAccent,
-                    fontSize: 11,
-                  ),
+                  style: const TextStyle(color: Colors.amberAccent, fontSize: 11),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -223,17 +177,11 @@ class _ResultPageState extends ConsumerState<ResultPage> {
       },
       loading: () => const Text(
         '이용권 정보를 확인하는 중...',
-        style: TextStyle(
-          color: Colors.white54,
-          fontSize: 12,
-        ),
+        style: TextStyle(color: Colors.white54, fontSize: 12),
       ),
       error: (_, _) => const Text(
         '이용권 정보를 불러오지 못했습니다.',
-        style: TextStyle(
-          color: Colors.redAccent,
-          fontSize: 12,
-        ),
+        style: TextStyle(color: Colors.redAccent, fontSize: 12),
       ),
     );
   }
@@ -269,13 +217,15 @@ class _ResultPageState extends ConsumerState<ResultPage> {
           if (kDebugMode) ...[
             IconButton(
               icon: Icon(
-              ref.watch(debugEnabledProvider) 
-                  ? Icons.bug_report 
-                  : Icons.bug_report_outlined,
-              color: ref.watch(debugEnabledProvider) ? Colors.redAccent : Colors.white70,
+                ref.watch(debugEnabledProvider)
+                    ? Icons.bug_report
+                    : Icons.bug_report_outlined,
+                color: ref.watch(debugEnabledProvider)
+                    ? Colors.redAccent
+                    : Colors.white70,
               ),
               onPressed: () {
-              ref.read(debugEnabledProvider.notifier).toggle();
+                ref.read(debugEnabledProvider.notifier).toggle();
               },
               tooltip: '디버그 UI 토글',
             ),
@@ -325,7 +275,6 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                               children: [
                                 if (imageFile != null)
                                   Image.file(imageFile, fit: BoxFit.cover),
-                                
                                 Positioned(
                                   bottom: 40,
                                   left: 20,
@@ -333,40 +282,48 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                                   height: UiConstants.scratchAreaHeight,
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(12),
-                                    clipBehavior: ref.watch(debugServiceProvider).isDebugMode 
-                                        ? Clip.none 
-                                        : Clip.antiAlias,
+                                    clipBehavior:
+                                        ref.watch(debugServiceProvider).isDebugMode
+                                            ? Clip.none
+                                            : Clip.antiAlias,
                                     child: ScratchWrapperView(
-                                      clearThreshold: UiConstants.scratchTotalClearThreshold,
+                                      clearThreshold:
+                                          UiConstants.scratchTotalClearThreshold,
                                       targetText: titleResult.text,
                                       targetTextStyle: const TextStyle(
                                         fontSize: UiConstants.scratchTitleFontSize,
                                         fontWeight: FontWeight.bold,
                                         color: UiConstants.scratchTitleColor,
                                       ),
-                                      foreground: Container(), // Dummy
+                                      foreground: Container(),
                                       background: Container(
                                         alignment: Alignment.center,
-                                        color: Colors.black.withOpacity(0.6),
-                                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                                        color: const Color(0x99000000),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16),
                                         child: Center(
                                           child: Text(
                                             titleResult.text,
                                             textAlign: TextAlign.center,
                                             style: const TextStyle(
-                                              fontSize: UiConstants.scratchTitleFontSize,
+                                              fontSize:
+                                                  UiConstants.scratchTitleFontSize,
                                               fontWeight: FontWeight.bold,
                                               color: UiConstants.scratchTitleColor,
                                               shadows: [
-                                                Shadow(offset: Offset(2, 2), blurRadius: 4, color: Colors.black),
+                                                Shadow(
+                                                  offset: Offset(2, 2),
+                                                  blurRadius: 4,
+                                                  color: Colors.black,
+                                                ),
                                               ],
                                             ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                    ),
                                   ),
+                                ),
                               ],
                             )
                           : const Center(child: Text('준비 중...')),
@@ -387,9 +344,7 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                       tooltip: 'LLM 선택',
                       initialValue: _selectedLlmModel,
                       onSelected: (model) {
-                        setState(() {
-                          _selectedLlmModel = model;
-                        });
+                        setState(() => _selectedLlmModel = model);
                         ref.invalidate(titleQuotaProvider);
                       },
                       itemBuilder: (context) => TitleGenerationModel.values
@@ -453,7 +408,8 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                 onPressed: isCleared
                     ? () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('저장 기능은 Phase 4에서 구현됩니다.')),
+                          const SnackBar(
+                              content: Text('저장 기능은 Phase 4에서 구현됩니다.')),
                         );
                       }
                     : null,

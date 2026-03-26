@@ -16,6 +16,7 @@ import '../domain/title_usage_quota_service.dart';
 import '../domain/title_usage_quota_snapshot.dart';
 import '../domain/title_repository.dart';
 import '../domain/title_result.dart';
+import '../domain/quota_gated_pipeline_usecase.dart';
 
 class TitleViewState {
   final TitleResult result;
@@ -58,6 +59,12 @@ final titleUsageQuotaServiceProvider =
 final titleQuotaProvider = FutureProvider<TitleUsageQuotaSnapshot>((ref) async {
   final service = ref.read(titleUsageQuotaServiceProvider);
   return service.getQuota();
+});
+final quotaGatedPipelineProvider = Provider<QuotaGatedPipelineUseCase>((ref) {
+  return QuotaGatedPipelineUseCase(
+    quotaService: ref.read(titleUsageQuotaServiceProvider),
+    adService: ref.read(adServiceProvider),
+  );
 });
 
 final titleNotifierProvider =
