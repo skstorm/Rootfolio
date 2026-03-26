@@ -1,4 +1,4 @@
-import 'package:anime_title_academy/core/constants/usage_quota_constants.dart';
+import 'package:anime_title_academy/core/constants/quota_constants.dart';
 import 'package:anime_title_academy/core/config/app_runtime_config.dart';
 import 'package:anime_title_academy/features/title_academy/data/title_usage_local_datasource.dart';
 import 'package:anime_title_academy/features/title_academy/domain/quota_consume_result.dart';

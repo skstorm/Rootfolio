@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../shared/providers/debug_provider.dart';
-import '../../../core/constants/ui_constants.dart';
+import '../../../core/constants/scratch_constants.dart';
 import 'scratch_painter.dart';
 import 'scratch_provider.dart';
 
@@ -21,13 +21,13 @@ class ScratchCanvas extends ConsumerStatefulWidget {
   const ScratchCanvas({
     super.key,
     required this.child,
-    this.strokeWidth = UiConstants.scratchStrokeWidth,
-    this.erasureIntensity = UiConstants.scratchErasureIntensity,
+    this.strokeWidth = ScratchConstants.strokeWidth,
+    this.erasureIntensity = ScratchConstants.erasureIntensity,
     this.decoration,
     this.guideText,
     this.guideTextStyle,
     this.onCleared,
-    this.clearThreshold = UiConstants.scratchTotalClearThreshold,
+    this.clearThreshold = ScratchConstants.totalClearThreshold,
     this.targetText,
     this.targetTextStyle,
   });
@@ -97,7 +97,7 @@ class _ScratchCanvasState extends ConsumerState<ScratchCanvas> {
     ref.read(debugServiceProvider).log('Text Rect Calculated: $rect');
   }
 
-  double get _textThreshold => UiConstants.scratchTextClearThreshold;
+  double get _textThreshold => ScratchConstants.textClearThreshold;
   
   // [REFIX] 판정 로직 통합: 디버그 출력과 실제 판정이 동일한 수치를 사용하도록 함
   (double total, double text) _calculateCurrentCoverage(Size size) {

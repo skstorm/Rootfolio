@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:image/image.dart' as img;
 import 'package:injectable/injectable.dart';
 
-import '../../../core/constants/ai_constants.dart';
+import '../../../core/constants/ai_pipeline_constants.dart';
 
 @injectable
 class ImagePayloadPreparer {
@@ -17,7 +17,7 @@ class ImagePayloadPreparer {
 
     final resized = _resizeIfNeeded(decoded);
     final encoded = Uint8List.fromList(
-      img.encodeJpg(resized, quality: AiConstants.visionJpegQuality),
+      img.encodeJpg(resized, quality: AiPipelineConstants.visionJpegQuality),
     );
 
     if (encoded.length >= bytes.length) {
@@ -33,35 +33,35 @@ class ImagePayloadPreparer {
       source.path,
       stat.size,
       stat.modified.millisecondsSinceEpoch,
-      AiConstants.visionMaxImageDimension,
-      AiConstants.visionJpegQuality,
+      AiPipelineConstants.visionMaxImageDimension,
+      AiPipelineConstants.visionJpegQuality,
     ].join('|');
   }
 
   img.Image _resizeIfNeeded(img.Image image) {
     final width = image.width;
     final height = image.height;
-    if (width <= AiConstants.visionMaxImageDimension &&
-        height <= AiConstants.visionMaxImageDimension) {
+    if (width <= AiPipelineConstants.visionMaxImageDimension &&
+        height <= AiPipelineConstants.visionMaxImageDimension) {
       return image;
     }
 
     if (width >= height) {
       final resizedHeight =
-          (height * (AiConstants.visionMaxImageDimension / width)).round();
+          (height * (AiPipelineConstants.visionMaxImageDimension / width)).round();
       return img.copyResize(
         image,
-        width: AiConstants.visionMaxImageDimension,
+        width: AiPipelineConstants.visionMaxImageDimension,
         height: resizedHeight,
       );
     }
 
     final resizedWidth =
-        (width * (AiConstants.visionMaxImageDimension / height)).round();
+        (width * (AiPipelineConstants.visionMaxImageDimension / height)).round();
     return img.copyResize(
       image,
       width: resizedWidth,
-      height: AiConstants.visionMaxImageDimension,
+      height: AiPipelineConstants.visionMaxImageDimension,
     );
   }
 }

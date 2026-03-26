@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/constants/ui_constants.dart';
+import '../../../core/constants/scratch_constants.dart';
 import '../../../core/theme/scratch_styles.dart';
 import 'reveal_particle.dart';
 import 'scratch_canvas.dart';
@@ -19,7 +19,7 @@ class ScratchWrapperView extends ConsumerWidget {
     super.key,
     required this.foreground,
     required this.background,
-    this.clearThreshold = UiConstants.scratchTotalClearThreshold,
+    this.clearThreshold = ScratchConstants.totalClearThreshold,
     this.strokeWidth,
     this.erasureIntensity,
     this.targetText,
@@ -34,8 +34,8 @@ class ScratchWrapperView extends ConsumerWidget {
       clipBehavior: Clip.none,
       triggerId: scratchState.revealEventId,
       child: ScratchCanvas(
-        strokeWidth: strokeWidth ?? UiConstants.scratchStrokeWidth,
-        erasureIntensity: erasureIntensity ?? UiConstants.scratchErasureIntensity,
+        strokeWidth: strokeWidth ?? ScratchConstants.strokeWidth,
+        erasureIntensity: erasureIntensity ?? ScratchConstants.erasureIntensity,
         clearThreshold: clearThreshold,
         targetText: targetText,
         targetTextStyle: targetTextStyle,

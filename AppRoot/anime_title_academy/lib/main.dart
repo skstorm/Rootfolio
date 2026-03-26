@@ -9,7 +9,7 @@ import 'core/config/app_config.dart';
 import 'core/config/app_runtime_config.dart';
 import 'core/theme/app_theme.dart';
 import 'core/routes/app_router.dart';
-import 'core/constants/app_constants.dart';
+
 import 'core/constants/ui_constants.dart';
 import 'di/injection_container.dart';
 import 'di/di_constants.dart';
@@ -56,7 +56,7 @@ class AnimeTitleAcademyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: AppConstants.appName,
+      title: 'Anime Title Academy',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.dark, // 다크 테마 강제

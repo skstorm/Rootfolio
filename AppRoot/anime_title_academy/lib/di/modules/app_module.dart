@@ -7,7 +7,7 @@ import '../../core/ads/fake_rewarded_ad_service.dart';
 import '../../core/ads/google_rewarded_ad_service.dart';
 import '../../core/ads/noop_ad_service.dart';
 import '../../core/config/app_runtime_config.dart';
-import '../../features/title_academy/domain/title_usage_quota_service.dart';
+
 
 @module
 abstract class AppModule {

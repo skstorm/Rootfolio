@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:injectable/injectable.dart';
-import '../../../core/constants/ui_constants.dart';
+import '../../../core/constants/ai_pipeline_constants.dart';
 import '../domain/prompt_template.dart';
 
 @lazySingleton
@@ -11,7 +11,7 @@ class PromptTemplateService {
 [공통 제약 사항]
 1. 반드시 한국어로 답변할 것.
 2. 친절한 인사말이나 부연 설명 없이 오직 '제목' 텍스트만 출력할 것.
-3. 공백을 포함하여 반드시 ${UiConstants.maxTitleLength}자 이내로 작성할 것 (매우 중요).
+3. 공백을 포함하여 반드시 ${AiPipelineConstants.maxTitleLength}자 이내로 작성할 것 (매우 중요).
 4. 불필요한 따옴표(")는 제거할 것.
 """;
 

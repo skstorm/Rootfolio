@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/routes/route_names.dart';
 import 'package:anime_title_academy/core/ads/ad_runtime_mode.dart';
 import 'package:anime_title_academy/shared/providers/debug_provider.dart';
-import 'package:anime_title_academy/core/constants/ui_constants.dart';
+import 'package:anime_title_academy/core/constants/scratch_constants.dart';
 import 'package:anime_title_academy/features/scratch_ux/presentation/scratch_provider.dart';
 import 'package:anime_title_academy/features/scratch_ux/presentation/scratch_wrapper_view.dart';
 import '../domain/title_generation_model.dart';
@@ -279,7 +279,7 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                                   bottom: 40,
                                   left: 20,
                                   right: 20,
-                                  height: UiConstants.scratchAreaHeight,
+                                  height: ScratchConstants.areaHeight,
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(12),
                                     clipBehavior:
@@ -288,12 +288,12 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                                             : Clip.antiAlias,
                                     child: ScratchWrapperView(
                                       clearThreshold:
-                                          UiConstants.scratchTotalClearThreshold,
+                                          ScratchConstants.totalClearThreshold,
                                       targetText: titleResult.text,
                                       targetTextStyle: const TextStyle(
-                                        fontSize: UiConstants.scratchTitleFontSize,
+                                        fontSize: ScratchConstants.titleFontSize,
                                         fontWeight: FontWeight.bold,
-                                        color: UiConstants.scratchTitleColor,
+                                        color: ScratchConstants.titleColor,
                                       ),
                                       foreground: Container(),
                                       background: Container(
@@ -307,9 +307,9 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                                             textAlign: TextAlign.center,
                                             style: const TextStyle(
                                               fontSize:
-                                                  UiConstants.scratchTitleFontSize,
+                                                  ScratchConstants.titleFontSize,
                                               fontWeight: FontWeight.bold,
-                                              color: UiConstants.scratchTitleColor,
+                                              color: ScratchConstants.titleColor,
                                               shadows: [
                                                 Shadow(
                                                   offset: Offset(2, 2),

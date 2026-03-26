@@ -1,4 +1,4 @@
-import 'package:anime_title_academy/core/constants/ui_constants.dart';
+import 'package:anime_title_academy/core/constants/ai_pipeline_constants.dart';
 import 'package:anime_title_academy/features/title_academy/data/prompt_template_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -10,7 +10,7 @@ void main() {
       final prompt = service.generateLlmPrompt('youth', ['학교', '노을']);
 
       expect(prompt, contains('반드시 한국어로 답변할 것'));
-      expect(prompt, contains('${UiConstants.maxTitleLength}자 이내'));
+      expect(prompt, contains('${AiPipelineConstants.maxTitleLength}자 이내'));
       expect(prompt, contains('[학교, 노을]'));
       expect(prompt, contains('핵심 태그'));
     });

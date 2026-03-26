@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/debug/debug_service.dart';
-import '../../../core/constants/ui_constants.dart';
+import '../../../core/constants/scratch_constants.dart';
 
 class ScratchPainter extends CustomPainter {
   final List<Offset?> points;
@@ -67,7 +67,7 @@ class ScratchPainter extends CustomPainter {
           ..strokeCap = StrokeCap.round
           ..strokeJoin = StrokeJoin.round
           ..style = PaintingStyle.stroke
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, UiConstants.scratchSoftBlurSigma);
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, ScratchConstants.softBlurSigma);
 
         for (int i = 0; i < points.length - 1; i++) {
           if (points[i] != null && points[i + 1] != null) {
