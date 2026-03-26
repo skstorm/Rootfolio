@@ -5,12 +5,23 @@ import 'package:anime_title_academy/features/title_academy/domain/quota_consume_
 import 'package:anime_title_academy/features/title_academy/domain/title_generation_model.dart';
 import 'package:anime_title_academy/features/title_academy/domain/title_model_usage_quota.dart';
 import 'package:anime_title_academy/features/title_academy/domain/title_usage_quota_snapshot.dart';
+import 'package:injectable/injectable.dart';
 
+typedef NowProvider = DateTime Function();
+
+@lazySingleton
 class TitleUsageQuotaService {
+  @factoryMethod
+  static TitleUsageQuotaService create(
+    TitleUsageLocalDatasource localDatasource,
+    AppRuntimeConfig runtimeConfig,
+  ) =>
+      TitleUsageQuotaService(localDatasource, runtimeConfig);
+
   TitleUsageQuotaService(
     this._localDatasource,
     this._runtimeConfig, {
-    DateTime Function()? nowProvider,
+    NowProvider? nowProvider,
   }) : _nowProvider = nowProvider ?? DateTime.now;
 
   final TitleUsageLocalDatasource _localDatasource;

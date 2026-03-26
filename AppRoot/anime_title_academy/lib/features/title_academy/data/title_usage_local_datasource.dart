@@ -1,6 +1,8 @@
+import 'package:injectable/injectable.dart';
 import 'package:anime_title_academy/features/title_academy/domain/title_generation_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+@lazySingleton
 class TitleUsageLocalDatasource {
   TitleUsageLocalDatasource(this._preferences);
 
