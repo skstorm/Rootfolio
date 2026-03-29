@@ -135,9 +135,10 @@ class _ResultPageState extends ConsumerState<ResultPage> {
     );
   }
 
-  void _showSharePlaceholder() {
-    _showSnackBar('공유 기능은 Phase 4에서 구현됩니다.');
-  }
+  // 공유 기능은 추후 실제 공유 플로우 구현 시 다시 부활시킬 예정입니다.
+  // void _showSharePlaceholder() {
+  //   _showSnackBar('공유 기능은 Phase 4에서 구현됩니다.');
+  // }
 
   void _resetScratchDebug() {
     ref.read(scratchProvider.notifier).reset();
@@ -254,11 +255,12 @@ class _ResultPageState extends ConsumerState<ResultPage> {
         label: '저장',
         onPressed: isCleared ? _saveResultImage : null,
       ),
-      ResultActionDockItem(
-        icon: Icons.ios_share_rounded,
-        label: '공유',
-        onPressed: isCleared ? _showSharePlaceholder : null,
-      ),
+      // 공유 기능은 추후 실제 공유 플로우 구현 시 다시 부활시킬 예정입니다.
+      // ResultActionDockItem(
+      //   icon: Icons.ios_share_rounded,
+      //   label: '공유',
+      //   onPressed: isCleared ? _showSharePlaceholder : null,
+      // ),
       ResultActionDockItem(
         icon: Icons.replay_rounded,
         label: '다시하기',
