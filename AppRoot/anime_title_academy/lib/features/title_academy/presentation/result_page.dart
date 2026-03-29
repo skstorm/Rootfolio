@@ -182,7 +182,11 @@ class _ResultPageState extends ConsumerState<ResultPage> {
       }
 
       final savedFile = (saveResult as Success<File>).data;
-      _showSnackBar('이미지를 저장했습니다.\n${savedFile.path}');
+      if (Platform.isAndroid || Platform.isIOS) {
+        _showSnackBar('갤러리에 이미지를 저장했습니다.');
+      } else {
+        _showSnackBar('이미지를 저장했습니다.\n${savedFile.path}');
+      }
     } finally {
       if (mounted) {
         setState(() => _isSaveInProgress = false);

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import '../../../core/error/failures.dart';
 import '../../../core/utils/result.dart';
@@ -7,9 +8,24 @@ import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: ShareService)
 class ShareServiceImpl implements ShareService {
+  static const MethodChannel _gallerySaverChannel = MethodChannel(
+    'com.titlegym.anime_title_academy/gallery_saver',
+  );
+
   @override
   Future<Result<File>> saveToGallery(File image) async {
     try {
+      if (Platform.isAndroid || Platform.isIOS) {
+        await _gallerySaverChannel.invokeMethod<String>(
+          'saveImageToGallery',
+          {
+            'sourcePath': image.path,
+            'fileName': _buildSuggestedFileName(image.path),
+          },
+        );
+        return Success(image);
+      }
+
       final targetDirectory = await _resolveSaveDirectory();
       await targetDirectory.create(recursive: true);
 
@@ -65,5 +81,10 @@ class ShareServiceImpl implements ShareService {
       return '.png';
     }
     return filePath.substring(dotIndex);
+  }
+
+  String _buildSuggestedFileName(String filePath) {
+    final extension = _extensionOf(filePath);
+    return 'anime_title_academy_${DateTime.now().millisecondsSinceEpoch}$extension';
   }
 }
