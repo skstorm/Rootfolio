@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/logging/app_logger.dart';
 import '../../../core/utils/result.dart';
 import '../../../di/injection_container.dart';
+import '../../share_kit/domain/share_service.dart';
 import '../data/prompt_template_service.dart';
 import '../domain/analyze_image.dart';
 import '../domain/generate_title.dart';
@@ -17,6 +18,8 @@ import '../domain/title_usage_quota_snapshot.dart';
 import '../domain/title_repository.dart';
 import '../domain/title_result.dart';
 import '../domain/quota_gated_pipeline_usecase.dart';
+import '../../watermark/domain/composite_title.dart';
+import '../../watermark/domain/watermark_repository.dart';
 
 class TitleViewState {
   final TitleResult result;
@@ -51,6 +54,13 @@ final promptTemplateServiceProvider =
     Provider<PromptTemplateService>((ref) => getIt<PromptTemplateService>());
 final titleRepositoryProvider =
     Provider<TitleRepository>((ref) => getIt<TitleRepository>());
+final watermarkRepositoryProvider =
+    Provider<WatermarkRepository>((ref) => getIt<WatermarkRepository>());
+final compositeTitleUseCaseProvider = Provider<CompositeTitleUseCase>((ref) {
+  return CompositeTitleUseCase(ref.read(watermarkRepositoryProvider));
+});
+final shareServiceProvider =
+    Provider<ShareService>((ref) => getIt<ShareService>());
 final appRuntimeConfigProvider =
     Provider<AppRuntimeConfig>((ref) => getIt<AppRuntimeConfig>());
 final adServiceProvider = Provider<AdService>((ref) => getIt<AdService>());

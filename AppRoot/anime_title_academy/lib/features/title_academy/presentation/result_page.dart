@@ -6,12 +6,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/ui_constants.dart';
 import '../../../core/routes/route_names.dart';
+import '../../../core/utils/result.dart';
 import 'package:anime_title_academy/core/ads/ad_runtime_mode.dart';
 import 'package:anime_title_academy/shared/providers/debug_provider.dart';
 import 'package:anime_title_academy/core/constants/scratch_constants.dart';
 import 'package:anime_title_academy/features/scratch_ux/presentation/scratch_provider.dart';
 import 'package:anime_title_academy/features/scratch_ux/presentation/scratch_wrapper_view.dart';
 import '../domain/title_generation_model.dart';
+import '../../watermark/domain/title_style.dart';
 import 'title_provider.dart';
 import 'widgets/result_action_dock.dart';
 import 'widgets/result_model_selector_pill.dart';
@@ -34,6 +36,7 @@ class ResultPage extends ConsumerStatefulWidget {
 class _ResultPageState extends ConsumerState<ResultPage> {
   TitleGenerationModel _selectedLlmModel = TitleGenerationModel.fast;
   bool _isQuotaActionInProgress = false;
+  bool _isSaveInProgress = false;
 
   Future<void> _runInitialPipeline() async {
     await _runFullPipeline(useCache: true);
@@ -132,16 +135,59 @@ class _ResultPageState extends ConsumerState<ResultPage> {
     );
   }
 
-  void _showSavePlaceholder() {
-    _showSnackBar('저장 기능은 Phase 4에서 구현됩니다.');
-  }
-
   void _showSharePlaceholder() {
     _showSnackBar('공유 기능은 Phase 4에서 구현됩니다.');
   }
 
   void _resetScratchDebug() {
     ref.read(scratchProvider.notifier).reset();
+  }
+
+  Future<void> _saveResultImage() async {
+    if (_isSaveInProgress || widget.imagePath == null) {
+      return;
+    }
+
+    final titleResult = ref.read(titleNotifierProvider).asData?.value?.result;
+    if (titleResult == null) {
+      _showSnackBar('저장할 결과가 아직 준비되지 않았습니다.');
+      return;
+    }
+
+    setState(() => _isSaveInProgress = true);
+    try {
+      final compositeUseCase = ref.read(compositeTitleUseCaseProvider);
+      final shareService = ref.read(shareServiceProvider);
+      final compositeResult = await compositeUseCase(
+        image: File(widget.imagePath!),
+        titleResult: titleResult,
+        titleStyle: const TitleStyle(
+          fontSize: 28,
+          position: Offset.zero,
+          strokeWidth: 3.0,
+        ),
+      );
+
+      if (compositeResult is Failure<File>) {
+        _showSnackBar(compositeResult.failure.message);
+        return;
+      }
+
+      final composedFile = (compositeResult as Success<File>).data;
+      final saveResult = await shareService.saveToGallery(composedFile);
+
+      if (saveResult is Failure<File>) {
+        _showSnackBar(saveResult.failure.message);
+        return;
+      }
+
+      final savedFile = (saveResult as Success<File>).data;
+      _showSnackBar('이미지를 저장했습니다.\n${savedFile.path}');
+    } finally {
+      if (mounted) {
+        setState(() => _isSaveInProgress = false);
+      }
+    }
   }
 
   Widget _buildQuotaSummary() {
@@ -194,7 +240,7 @@ class _ResultPageState extends ConsumerState<ResultPage> {
     final titleState = ref.watch(titleNotifierProvider);
     final loadingMode = ref.watch(titleLoadingModeProvider);
     final isCleared = ref.watch(scratchProvider).isCleared;
-    final isBusy = titleState.isLoading || _isQuotaActionInProgress;
+    final isBusy = titleState.isLoading || _isQuotaActionInProgress || _isSaveInProgress;
     final imageFile = widget.imagePath != null ? File(widget.imagePath!) : null;
     final titleViewState = titleState.asData?.value;
     final titleResult = titleViewState?.result;
@@ -202,7 +248,7 @@ class _ResultPageState extends ConsumerState<ResultPage> {
       ResultActionDockItem(
         icon: Icons.download_rounded,
         label: '저장',
-        onPressed: isCleared ? _showSavePlaceholder : null,
+        onPressed: isCleared ? _saveResultImage : null,
       ),
       ResultActionDockItem(
         icon: Icons.ios_share_rounded,
