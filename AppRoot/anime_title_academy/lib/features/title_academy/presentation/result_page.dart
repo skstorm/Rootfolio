@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/constants/ui_constants.dart';
 import '../../../core/routes/route_names.dart';
 import 'package:anime_title_academy/core/ads/ad_runtime_mode.dart';
 import 'package:anime_title_academy/shared/providers/debug_provider.dart';
@@ -12,6 +13,9 @@ import 'package:anime_title_academy/features/scratch_ux/presentation/scratch_pro
 import 'package:anime_title_academy/features/scratch_ux/presentation/scratch_wrapper_view.dart';
 import '../domain/title_generation_model.dart';
 import 'title_provider.dart';
+import 'widgets/result_action_dock.dart';
+import 'widgets/result_model_selector_pill.dart';
+import 'widgets/result_quota_summary.dart';
 
 class ResultPage extends ConsumerStatefulWidget {
   final String? imagePath;
@@ -128,6 +132,18 @@ class _ResultPageState extends ConsumerState<ResultPage> {
     );
   }
 
+  void _showSavePlaceholder() {
+    _showSnackBar('저장 기능은 Phase 4에서 구현됩니다.');
+  }
+
+  void _showSharePlaceholder() {
+    _showSnackBar('공유 기능은 Phase 4에서 구현됩니다.');
+  }
+
+  void _resetScratchDebug() {
+    ref.read(scratchProvider.notifier).reset();
+  }
+
   Widget _buildQuotaSummary() {
     final quotaState = ref.watch(titleQuotaProvider);
     final runtimeConfig = ref.watch(appRuntimeConfigProvider);
@@ -146,42 +162,18 @@ class _ResultPageState extends ConsumerState<ResultPage> {
             ? null
             : runtimeConfig.rewardedAdMode.debugLabel;
 
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              summaryText,
-              style: const TextStyle(color: Colors.white70, fontSize: 12),
-              textAlign: TextAlign.center,
-            ),
-            if (rewardText != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 2),
-                child: Text(
-                  rewardText,
-                  style: const TextStyle(color: Colors.white54, fontSize: 11),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            if (runtimeConfig.isDebugBuild && modeText != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 2),
-                child: Text(
-                  modeText,
-                  style: const TextStyle(color: Colors.amberAccent, fontSize: 11),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-          ],
+        return ResultQuotaSummary(
+          summaryText: summaryText,
+          rewardText: rewardText,
+          modeText: runtimeConfig.isDebugBuild ? modeText : null,
         );
       },
-      loading: () => const Text(
-        '이용권 정보를 확인하는 중...',
-        style: TextStyle(color: Colors.white54, fontSize: 12),
+      loading: () => const ResultQuotaSummary(
+        summaryText: '이용권 정보를 확인하는 중...',
       ),
-      error: (_, _) => const Text(
-        '이용권 정보를 불러오지 못했습니다.',
-        style: TextStyle(color: Colors.redAccent, fontSize: 12),
+      error: (_, _) => const ResultQuotaSummary(
+        summaryText: '이용권 정보를 불러오지 못했습니다.',
+        isError: true,
       ),
     );
   }
@@ -206,6 +198,33 @@ class _ResultPageState extends ConsumerState<ResultPage> {
     final imageFile = widget.imagePath != null ? File(widget.imagePath!) : null;
     final titleViewState = titleState.asData?.value;
     final titleResult = titleViewState?.result;
+    final actionItems = [
+      ResultActionDockItem(
+        icon: Icons.download_rounded,
+        label: '저장',
+        onPressed: isCleared ? _showSavePlaceholder : null,
+      ),
+      ResultActionDockItem(
+        icon: Icons.ios_share_rounded,
+        label: '공유',
+        onPressed: isCleared ? _showSharePlaceholder : null,
+      ),
+      ResultActionDockItem(
+        icon: Icons.replay_rounded,
+        label: '다시하기',
+        onPressed: widget.imagePath != null && !isBusy
+            ? () => _runFullPipeline(useCache: false)
+            : null,
+      ),
+      ResultActionDockItem(
+        icon: Icons.auto_awesome_rounded,
+        label: '자막 재생성',
+        accentColor: Colors.amberAccent,
+        onPressed: titleViewState != null && !isBusy
+            ? _regenerateTitleOnly
+            : null,
+      ),
+    ];
     final loadingMessage = loadingMode == TitleLoadingMode.regenerateOnly
         ? 'AI가 자막을 재생성 하고 있습니다...'
         : 'AI가 사진을 분석하여\n자막을 생성하고 있습니다...';
@@ -246,7 +265,7 @@ class _ResultPageState extends ConsumerState<ResultPage> {
         children: [
           Expanded(
             child: Container(
-              margin: const EdgeInsets.all(20),
+              margin: const EdgeInsets.all(UiConstants.resultHorizontalPadding),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.white24),
                 borderRadius: BorderRadius.circular(12),
@@ -329,94 +348,69 @@ class _ResultPageState extends ConsumerState<ResultPage> {
                           : const Center(child: Text('준비 중...')),
             ),
           ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: PopupMenuButton<TitleGenerationModel>(
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: UiConstants.resultHorizontalPadding,
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ResultModelSelectorPill(
+                      selectedModel: _selectedLlmModel,
                       enabled: !isBusy,
-                      tooltip: 'LLM 선택',
-                      initialValue: _selectedLlmModel,
                       onSelected: (model) {
                         setState(() => _selectedLlmModel = model);
                         ref.invalidate(titleQuotaProvider);
                       },
-                      itemBuilder: (context) => TitleGenerationModel.values
-                          .map(
-                            (model) => PopupMenuItem<TitleGenerationModel>(
-                              value: model,
-                              child: Text(model.displayLabel),
+                    ),
+                    if (kDebugMode) ...[
+                      const SizedBox(width: 10),
+                      Tooltip(
+                        message: '스크래치 리셋',
+                        preferBelow: false,
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: _resetScratchDebug,
+                            customBorder: const CircleBorder(),
+                            child: Ink(
+                              width: UiConstants.resultModelPillHeight,
+                              height: UiConstants.resultModelPillHeight,
+                              decoration: BoxDecoration(
+                                color: Colors.redAccent.withValues(alpha: 0.14),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.redAccent.withValues(alpha: 0.45),
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.18),
+                                    blurRadius: 16,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.refresh_rounded,
+                                color: Colors.redAccent,
+                              ),
                             ),
-                          )
-                          .toList(),
-                      child: OutlinedButton.icon(
-                        onPressed: null,
-                        icon: const Icon(Icons.arrow_drop_down),
-                        label: Text(_selectedLlmModel.label),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: _buildQuotaSummary(),
-                  ),
-                  OutlinedButton(
-                    onPressed: widget.imagePath != null && !isBusy
-                        ? () => _runFullPipeline(useCache: false)
-                        : null,
-                    child: const Text('다시하기'),
-                  ),
-                ],
-              ),
-              const SizedBox(width: 12),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (kDebugMode)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: TextButton.icon(
-                        icon: const Icon(Icons.refresh, color: Colors.redAccent),
-                        label: const Text(
-                          '리셋 (Debug)',
-                          style: TextStyle(color: Colors.redAccent),
+                          ),
                         ),
-                        onPressed: () {
-                          ref.read(scratchProvider.notifier).reset();
-                        },
                       ),
-                    ),
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.auto_awesome),
-                    label: const Text('자막만 다시 생성'),
-                    onPressed: titleViewState != null && !isBusy
-                        ? _regenerateTitleOnly
-                        : null,
-                  ),
-                ],
-              ),
-              const SizedBox(width: 12),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.download),
-                label: const Text('저장 / 공유'),
-                onPressed: isCleared
-                    ? () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('저장 기능은 Phase 4에서 구현됩니다.')),
-                        );
-                      }
-                    : null,
-              ),
-            ],
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 8),
+                _buildQuotaSummary(),
+                const SizedBox(height: UiConstants.resultBottomSectionSpacing),
+                ResultActionDock(items: actionItems),
+              ],
+            ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: UiConstants.resultBottomSafePadding),
         ],
       ),
     );

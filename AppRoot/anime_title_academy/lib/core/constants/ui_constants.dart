@@ -31,6 +31,29 @@ class UiConstants {
   /// 스타일 카드 사이의 수직 간격
   static const double homeStyleCardVerticalSpacing = 16.0;
 
+  // --- [결과 화면 레이아웃 설정] ---
+
+  /// 결과 화면의 공통 수평 여백입니다.
+  static const double resultHorizontalPadding = 20.0;
+
+  /// 모델 선택 pill의 최소 높이입니다.
+  static const double resultModelPillHeight = 44.0;
+
+  /// 하단 Floating Island의 최소 높이입니다.
+  static const double resultActionDockHeight = 72.0;
+
+  /// Floating Island 내부 아이콘 버튼 크기입니다.
+  static const double resultActionButtonSize = 48.0;
+
+  /// Floating Island 내부 버튼 사이 간격입니다.
+  static const double resultActionButtonGap = 10.0;
+
+  /// Floating Island와 quota 영역 사이 간격입니다.
+  static const double resultBottomSectionSpacing = 14.0;
+
+  /// Floating Island 하단 SafeArea 여백입니다.
+  static const double resultBottomSafePadding = 24.0;
+
   // --- [디버그 설정] ---
 
   /// 긁힌 영역을 연두색 점으로 표시할지 여부입니다.
